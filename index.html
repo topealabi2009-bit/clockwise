@@ -1,0 +1,3244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLOCKWISE — Staff Attendance System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root {
+  --navy: #0A1628;
+  --deep: #0D2044;
+  --royal: #1A3A6E;
+  --mid: #1E5799;
+  --bright: #2980B9;
+  --sky: #3AAFDA;
+  --teal: #00C9C8;
+  --cyan: #00E5D4;
+  --glass-bg: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.18);
+  --glass-heavy: rgba(255,255,255,0.14);
+  --card-bg: rgba(255,255,255,0.96);
+  --text-dark: #0A1628;
+  --text-mid: #2C4A7C;
+  --text-light: #5A7BAB;
+  --surface: #F0F5FF;
+  --danger: #E74C6F;
+  --success: #00C9A7;
+  --warning: #F5A623;
+  --sidebar-w: 260px;
+  --radius: 18px;
+  --shadow: 0 8px 32px rgba(10,22,40,0.18);
+  --shadow-lg: 0 20px 60px rgba(10,22,40,0.28);
+}
+/* ══ DARK THEME ══ */
+[data-theme="dark"] {
+  --navy: #E2ECFF;
+  --deep: #CBD8F0;
+  --royal: #A8C0E8;
+  --mid: #7AAEE0;
+  --bright: #5B9BD5;
+  --sky: #3AAFDA;
+  --teal: #00C9C8;
+  --text-dark: #EDF2FF;
+  --text-mid: #A8C0E8;
+  --text-light: #6A90BE;
+  --surface: #0D1526;
+  --danger: #FF6B8A;
+  --success: #00C9A7;
+  --warning: #F5C842;
+  --card-bg: #162035;
+  --border-col: rgba(255,255,255,0.07);
+  --input-bg: #1C2B45;
+  --hover-bg: rgba(255,255,255,0.05);
+}
+[data-theme="dark"] body { background: #0D1526; color: #EDF2FF; }
+[data-theme="dark"] .main-content { background: linear-gradient(135deg,#0D1526 0%,#111E36 50%,#0F1A2E 100%); }
+[data-theme="dark"] .glass-card { background: #162035; border-color: rgba(255,255,255,0.07); box-shadow: 0 2px 16px rgba(0,0,0,0.35); }
+[data-theme="dark"] .stat-card { background: #162035; border-color: rgba(255,255,255,0.07); box-shadow: 0 2px 16px rgba(0,0,0,0.35); }
+[data-theme="dark"] .stat-num { color: #EDF2FF; }
+[data-theme="dark"] .stat-label { color: #6A90BE; }
+[data-theme="dark"] .card-header { border-bottom-color: rgba(255,255,255,0.06); }
+[data-theme="dark"] .card-header h3 { color: #EDF2FF; }
+[data-theme="dark"] th { color: #6A90BE; border-bottom-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] td { color: #CBD8F0; border-bottom-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] tr:hover td { background: rgba(255,255,255,0.04); }
+[data-theme="dark"] .page-title h2 { color: #EDF2FF; }
+[data-theme="dark"] .page-title p { color: #6A90BE; }
+[data-theme="dark"] .btn-glass { background: #1C2B45; border-color: rgba(255,255,255,0.12); color: #CBD8F0; box-shadow: none; }
+[data-theme="dark"] .btn-glass:hover { background: #243550; }
+[data-theme="dark"] .modal { background: #162035; border-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] .modal-header { border-bottom-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] .modal-header h3 { color: #EDF2FF; }
+[data-theme="dark"] .modal-footer { border-top-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] .modal-close { background: rgba(255,255,255,0.08); color: #7A9BC8; }
+[data-theme="dark"] .form-group-app label { color: #7AAEE0; }
+[data-theme="dark"] .form-group-app input,
+[data-theme="dark"] .form-group-app select,
+[data-theme="dark"] .form-group-app textarea { background: #1C2B45; border-color: rgba(255,255,255,0.1); color: #EDF2FF; }
+[data-theme="dark"] .form-group-app input:focus,
+[data-theme="dark"] .form-group-app select:focus,
+[data-theme="dark"] .form-group-app textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,201,200,0.1); }
+[data-theme="dark"] .form-group-app input::placeholder,
+[data-theme="dark"] .form-group-app textarea::placeholder { color: #3D5A80; }
+[data-theme="dark"] select option { background: #162035; color: #EDF2FF; }
+[data-theme="dark"] .search-bar { background: #1C2B45; border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .search-bar input { color: #EDF2FF; }
+[data-theme="dark"] .search-bar input::placeholder { color: #3D5A80; }
+[data-theme="dark"] .topbar { background: #111E36; border-bottom-color: rgba(255,255,255,0.07); box-shadow: 0 1px 8px rgba(0,0,0,0.3); }
+[data-theme="dark"] .topbar-brand span { color: #EDF2FF; }
+[data-theme="dark"] .hamburger { color: #EDF2FF; }
+[data-theme="dark"] .staff-profile-card { background: rgba(30,87,153,0.15); border-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] .profile-details .p-name { color: #EDF2FF; }
+[data-theme="dark"] .profile-details .p-branch { color: #6A90BE; }
+[data-theme="dark"] .info-pill { background: rgba(30,87,153,0.2); color: #7AAEE0; border-color: rgba(30,87,153,0.3); }
+[data-theme="dark"] .leave-card { background: rgba(0,201,200,0.07); border-color: rgba(0,201,200,0.15); }
+[data-theme="dark"] .att-row { border-bottom-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .att-date { color: #EDF2FF; }
+[data-theme="dark"] .att-times { color: #6A90BE; }
+[data-theme="dark"] .att-hours { color: #7AAEE0; }
+[data-theme="dark"] .photo-upload-area { background: #1C2B45; border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .photo-upload-area:hover { border-color: var(--teal); background: rgba(0,201,200,0.08); }
+[data-theme="dark"] .upload-icon, [data-theme="dark"] .upload-text { color: #3D5A80; }
+[data-theme="dark"] .divider { background: rgba(255,255,255,0.07); }
+[data-theme="dark"] .badge-blue { background: rgba(30,87,153,0.25); color: #7AAEE0; }
+[data-theme="dark"] .badge-gray { background: rgba(255,255,255,0.08); color: #6A90BE; }
+[data-theme="dark"] .badge-green { background: rgba(0,201,167,0.18); color: #00C9A7; }
+[data-theme="dark"] .badge-red { background: rgba(255,107,138,0.18); color: #FF6B8A; }
+[data-theme="dark"] .badge-yellow { background: rgba(245,200,66,0.15); color: #D4A800; }
+[data-theme="dark"] .empty-state h4 { color: #7AAEE0; }
+[data-theme="dark"] .empty-state { color: #3D5A80; }
+[data-theme="dark"] .confirm-msg { color: #A8C0E8; }
+[data-theme="dark"] code { background: rgba(0,201,200,0.12) !important; color: #00C9C8 !important; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+/* ── THEME TOGGLE ── (see .nav-theme-btn in nav controls) */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text-dark);overflow-x:hidden}
+h1,h2,h3,h4,h5{font-family:'Plus Jakarta Sans',sans-serif}
+.brand-wordmark{font-family:'Bebas Neue',cursive!important;letter-spacing:2px!important}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(26,58,110,0.25);border-radius:99px}
+
+/* ══════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════ */
+#auth-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#050D1A 0%,#0A1628 35%,#0D2044 65%,#0E2850 100%);
+  position:relative;overflow:hidden;
+}
+#auth-screen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 15% 60%,rgba(0,201,200,0.12) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 15%,rgba(30,87,153,0.18) 0%,transparent 50%);
+}
+.auth-orb{
+  position:absolute;border-radius:50%;filter:blur(70px);animation:float 8s ease-in-out infinite;
+}
+.orb1{width:420px;height:420px;background:rgba(0,201,200,0.08);top:-100px;right:-100px;animation-delay:0s}
+.orb2{width:300px;height:300px;background:rgba(14,40,80,0.6);bottom:-80px;left:-80px;animation-delay:3s}
+.orb3{width:220px;height:220px;background:rgba(0,180,200,0.06);top:40%;left:25%;animation-delay:5s}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.04)}}
+
+.auth-card{
+  position:relative;z-index:2;
+  background:#0D1F3C;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px;padding:40px 36px;width:92%;max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(0,201,200,0.08);
+}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo .logo-icon{
+  width:68px;height:68px;margin:0 auto 12px;
+  background:linear-gradient(135deg,#00C9C8,#1E5799);
+  border-radius:20px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(0,201,200,0.4);
+}
+.auth-logo h1{color:#ffffff;font-size:34px;font-weight:400;letter-spacing:5px;margin-top:4px}
+.auth-logo p{color:rgba(255,255,255,0.5);font-size:11.5px;margin-top:5px;letter-spacing:.8px;text-transform:uppercase}
+.role-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.role-btn{
+  padding:14px 10px;border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;
+  background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);
+  cursor:pointer;transition:all 0.22s;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;
+}
+.role-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:#fff}
+.role-btn.active{
+  background:rgba(0,201,200,0.18);
+  border-color:#00C9C8;color:#fff;
+  box-shadow:0 0 0 1px rgba(0,201,200,0.3);
+}
+.role-btn .role-icon{font-size:20px;margin-bottom:5px}
+.auth-form{display:flex;flex-direction:column;gap:13px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{color:rgba(255,255,255,0.55);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{
+  padding:13px 15px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.07);color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:all 0.2s;
+}
+.form-group input::placeholder{color:rgba(255,255,255,0.3)}
+.form-group input:focus{border-color:#00C9C8;background:rgba(255,255,255,0.1);box-shadow:0 0 0 3px rgba(0,201,200,0.15)}
+.btn-primary{
+  padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;font-weight:700;letter-spacing:.3px;
+  background:linear-gradient(135deg,#00C9C8,#1E5799);color:#fff;
+  box-shadow:0 5px 20px rgba(0,201,200,0.35);transition:all 0.22s;margin-top:4px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,201,200,0.45)}
+.btn-primary:active{transform:translateY(0)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:8px}
+.pin-btn{
+  padding:17px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.07);color:#fff;font-size:20px;font-weight:700;
+  cursor:pointer;transition:all 0.18s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.pin-btn:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.25);transform:scale(1.03)}
+.pin-btn:active{transform:scale(0.96)}
+.pin-display{
+  text-align:center;font-size:30px;letter-spacing:14px;color:#fff;min-height:46px;
+  padding:10px;font-family:'Plus Jakarta Sans',sans-serif;background:rgba(255,255,255,0.05);
+  border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:4px;
+}
+.auth-alt{text-align:center;margin-top:16px;color:rgba(255,255,255,0.5);font-size:13px}
+.auth-alt a{color:var(--teal);cursor:pointer;text-decoration:none;font-weight:600}
+
+/* ══════════════════════════════════════
+   APP LAYOUT
+══════════════════════════════════════ */
+#app{display:none;min-height:100vh}
+#app.visible{display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-height:100vh;position:fixed;left:0;top:0;z-index:200;background:linear-gradient(180deg,#0A1628 0%,#0D2044 55%,#112354 100%);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,0.3);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);will-change:transform}
+.sidebar-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.sidebar-logo .logo-row{display:flex;align-items:center;gap:11px}
+.sidebar-logo .s-icon{width:38px;height:38px;flex-shrink:0;background:linear-gradient(135deg,#00C9C8,#1E5799);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,201,200,0.35)}
+.sidebar-logo h2{font-family:'Bebas Neue',cursive!important;color:#fff;font-size:22px;letter-spacing:3px;line-height:1;margin-bottom:1px}
+.sidebar-logo p{color:rgba(255,255,255,0.38);font-size:10px;letter-spacing:.5px;text-transform:uppercase}
+.sidebar-user{margin:12px 14px;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:12px;display:flex;align-items:center;gap:11px}
+.user-ava{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--mid));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden}
+.user-ava img{width:100%;height:100%;object-fit:cover}
+.user-info{overflow:hidden}
+.user-info .u-name{color:#fff;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info .u-role{color:var(--teal);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-top:1px}
+.sidebar-nav-placeholder{}
+.nav-section{margin-bottom:4px;flex-shrink:0}
+.nav-section-label{color:rgba(255,255,255,0.25);font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:10px 12px 4px;font-family:'DM Sans',sans-serif}
+.nav-item{display:flex;align-items:center;gap:11px;padding:13px 13px;border-radius:10px;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s ease;font-size:14px;font-weight:500;margin-bottom:3px;position:relative;border:1px solid transparent;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;min-height:48px}
+.nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.88);border-color:rgba(255,255,255,0.05)}
+.nav-item.active{
+  background:rgba(0,201,200,0.18);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(0,201,200,0.35);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 4px 16px rgba(0,201,200,0.2);
+  color:#fff;
+}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--teal);border-radius:0 3px 3px 0}
+.nav-item.active .nav-icon{color:#00E5D4;filter:drop-shadow(0 0 4px rgba(0,201,200,0.5))}
+.nav-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;transition:color 0.18s}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px}
+/* ── SIDEBAR ACTIONS (sign out + theme — pinned below user card) ── */
+.sidebar-actions{
+  display:grid;
+  grid-template-columns:1fr 44px;
+  gap:8px;
+  padding:10px 14px 4px;
+  flex-shrink:0;
+}
+.sidebar-divider{
+  height:1px;
+  background:rgba(255,255,255,0.08);
+  margin:6px 14px 4px;
+  flex-shrink:0;
+}
+
+/* ── SIDEBAR NAV — fully scrollable ── */
+.sidebar-nav{
+  flex:1;
+  padding:4px 10px 10px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,0.12) transparent;
+}
+.sidebar-nav::-webkit-scrollbar{width:4px}
+.sidebar-nav::-webkit-scrollbar-track{background:transparent}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+
+/* Remove old nav-controls (now in sidebar HTML) */
+.nav-controls{display:none}
+.nav-signout-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 14px;
+  border-radius:10px;
+  border:1px solid rgba(255,80,100,0.25);
+  background:rgba(255,60,80,0.1);
+  color:rgba(255,150,160,0.9);
+  cursor:pointer;font-size:13px;font-weight:600;
+  font-family:'DM Sans',sans-serif;
+  transition:all 0.18s;
+  -webkit-tap-highlight-color:transparent;
+  min-height:44px;
+}
+.nav-signout-btn:hover,.nav-signout-btn:active{
+  background:rgba(231,76,111,0.22);
+  border-color:rgba(231,76,111,0.55);
+  color:#FF8FAB;
+}
+.nav-theme-btn{
+  width:44px;height:44px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.75);
+  cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:all 0.18s;
+}
+.nav-theme-btn:hover,.nav-theme-btn:active{
+  background:rgba(0,201,200,0.18);
+  border-color:rgba(0,201,200,0.4);
+  color:#fff;
+  transform:scale(1.05);
+}
+
+/* ── SIDEBAR OVERLAY ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199;opacity:0;transition:opacity 0.3s ease;-webkit-tap-highlight-color:transparent}
+.sidebar-overlay.open{display:block;opacity:1}
+
+/* ── TOPBAR ── */
+.topbar{display:none;position:fixed;top:0;left:0;right:0;z-index:150;background:#fff;height:56px;padding:0 8px 0 16px;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(26,58,110,0.1);box-shadow:0 1px 8px rgba(0,0,0,0.08)}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-brand .tb-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--teal),var(--bright));border-radius:9px;display:flex;align-items:center;justify-content:center}
+.topbar-brand span{font-family:'Bebas Neue',cursive;font-size:19px;letter-spacing:2.5px;color:var(--navy)}
+.hamburger{width:44px;height:44px;background:none;border:none;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--navy);font-size:22px;-webkit-tap-highlight-color:transparent;transition:background 0.15s;flex-shrink:0}
+.hamburger:active{background:rgba(26,58,110,0.08)}
+
+/* ── MAIN CONTENT ── */
+.main-content{margin-left:var(--sidebar-w);flex:1;padding:30px 28px;min-height:100vh;background:linear-gradient(135deg,#EEF4FF 0%,#F5F9FF 50%,#EBF5FF 100%)}
+.page{display:none}
+.page.active{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-title h2{font-size:24px;font-weight:800;color:var(--navy);line-height:1.1}
+.page-title p{color:var(--text-light);font-size:13px;margin-top:3px}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.btn-glass{background:#fff;border:1px solid rgba(26,58,110,0.16);color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.btn-glass:hover{background:#f4f7ff;box-shadow:0 3px 12px rgba(0,0,0,0.1);transform:translateY(-1px)}
+.btn-blue{background:linear-gradient(135deg,var(--mid),var(--royal));color:#fff;box-shadow:0 3px 12px rgba(30,87,153,0.35)}
+.btn-blue:hover{box-shadow:0 6px 20px rgba(30,87,153,0.45);transform:translateY(-1px)}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--sky));color:#fff;box-shadow:0 3px 12px rgba(0,201,200,0.35)}
+.btn-teal:hover{box-shadow:0 6px 20px rgba(0,201,200,0.45);transform:translateY(-1px)}
+.btn-danger{background:linear-gradient(135deg,#E74C6F,#C0392B);color:#fff;box-shadow:0 3px 12px rgba(231,76,111,0.35)}
+.btn-danger:hover{box-shadow:0 6px 20px rgba(231,76,111,0.45);transform:translateY(-1px)}
+.btn-sm{padding:8px 14px;font-size:12px;border-radius:9px}
+.btn-xs{padding:6px 11px;font-size:12px;border-radius:7px}
+.btn-icon{padding:8px;border-radius:9px}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:#fff;border:1px solid rgba(26,58,110,0.09);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:all 0.22s;box-shadow:0 2px 10px rgba(10,22,40,0.07)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(10,22,40,0.12)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c1,var(--teal)),var(--c2,var(--bright)))}
+.stat-card.blue{--c1:#1E5799;--c2:#3AAFDA}.stat-card.teal{--c1:#00C9C8;--c2:#00E5D4}.stat-card.warn{--c1:#F5A623;--c2:#F7DC6F}.stat-card.danger{--c1:#E74C6F;--c2:#F1948A}
+.stat-icon{font-size:24px;margin-bottom:8px}
+.stat-num{font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:800;color:var(--navy);line-height:1}
+.stat-label{color:var(--text-light);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:5px}
+
+/* ── CARDS ── */
+.glass-card{background:#fff;border:1px solid rgba(26,58,110,0.09);border-radius:16px;box-shadow:0 2px 10px rgba(10,22,40,0.07);overflow:hidden;margin-bottom:16px}
+.card-header{padding:15px 18px;border-bottom:1px solid rgba(26,58,110,0.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.card-header h3{font-size:15px;font-weight:700;color:var(--navy)}
+.card-body{padding:16px 18px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th{padding:10px 13px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-light);border-bottom:1.5px solid rgba(26,58,110,0.08);white-space:nowrap;background:#fafbff}
+td{padding:12px 13px;border-bottom:1px solid rgba(26,58,110,0.05);font-size:13px;color:var(--text-dark);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(30,87,153,0.03)}
+.td-name{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--mid));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.td-sub{color:var(--text-light);font-size:11px}
+
+/* ── BADGES ── */
+.badge{padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge-green{background:rgba(0,201,167,0.13);color:#00966E}
+.badge-red{background:rgba(231,76,111,0.13);color:var(--danger)}
+.badge-yellow{background:rgba(245,166,35,0.13);color:#C47A00}
+.badge-blue{background:rgba(30,87,153,0.1);color:var(--royal)}
+.badge-gray{background:rgba(90,123,171,0.1);color:var(--text-light)}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#fff;border:1px solid rgba(26,58,110,0.14);border-radius:10px;flex:1;min-width:0;max-width:300px}
+.search-bar input{border:none;background:transparent;outline:none;font-size:13px;color:var(--text-dark);width:100%;font-family:'DM Sans',sans-serif;min-width:0}
+.search-bar input::placeholder{color:var(--text-light)}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(10,22,40,0.5);align-items:flex-end;justify-content:center;padding:0}
+.modal-overlay.open{display:flex}
+.modal{background:#f8fbff;border:1px solid rgba(26,58,110,0.1);border-radius:20px 20px 0 0;width:100%;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUp 0.3s cubic-bezier(0.32,0.72,0,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal::before{content:'';display:block;width:40px;height:4px;border-radius:99px;background:rgba(26,58,110,0.15);margin:12px auto 0}
+.modal-header{padding:16px 20px 14px;border-bottom:1px solid rgba(26,58,110,0.08);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:17px;font-weight:800;color:var(--navy)}
+.modal-close{background:rgba(26,58,110,0.08);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);font-size:14px;transition:all 0.18s;-webkit-tap-highlight-color:transparent}
+.modal-close:active{background:rgba(231,76,111,0.15);color:var(--danger)}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:12px 20px 24px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(26,58,110,0.08)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group-app{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-group-app label{font-size:11px;font-weight:700;color:var(--text-mid);letter-spacing:.4px;text-transform:uppercase}
+.form-group-app input,.form-group-app select,.form-group-app textarea{padding:13px 14px;border-radius:11px;border:1.5px solid rgba(26,58,110,0.14);background:#fff;color:var(--text-dark);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none}
+.form-group-app input:focus,.form-group-app select:focus,.form-group-app textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,200,0.1)}
+.form-group-app textarea{resize:vertical;min-height:80px}
+.photo-upload-area{border:2px dashed rgba(26,58,110,0.2);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.5);-webkit-tap-highlight-color:transparent}
+.photo-upload-area:active{border-color:var(--teal);background:rgba(0,201,200,0.05)}
+.photo-preview{width:80px;height:80px;border-radius:14px;object-fit:cover;margin:0 auto 10px;display:none}
+.upload-icon{font-size:28px;color:var(--text-light);margin-bottom:8px}
+.upload-text{color:var(--text-light);font-size:12px}
+
+/* ── TOAST ── */
+#toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 32px);max-width:360px;align-items:center}
+.toast{padding:13px 16px;border-radius:12px;width:100%;border:1px solid;box-shadow:0 4px 20px rgba(0,0,0,0.15);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;animation:toastPop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;pointer-events:all;font-family:'DM Sans',sans-serif}
+.toast.removing{animation:toastFade 0.25s ease forwards}
+@keyframes toastPop{from{opacity:0;transform:scale(0.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes toastFade{to{opacity:0;transform:scale(0.9) translateY(10px)}}
+.toast-success{background:#F0FFF9;border-color:#A8DFCA;color:#1A7A5E}
+.toast-error{background:#FFF0F3;border-color:#F5A8B8;color:#C0204A}
+.toast-info{background:#F0F5FF;border-color:#A8C0E8;color:#1E4A8A}
+.toast-warn{background:#FFFBF0;border-color:#F0D080;color:#8A6000}
+
+/* ── CONFIRM ── */
+.confirm-dialog{max-width:100%;border-radius:20px 20px 0 0}
+.confirm-icon{font-size:40px;text-align:center;margin-bottom:12px}
+.confirm-msg{text-align:center;color:var(--text-mid);font-size:14px;line-height:1.6}
+
+/* ── STAFF PORTAL ── */
+.staff-top{background:linear-gradient(145deg,#050D1A 0%,#0A1628 40%,#0D1E3A 100%);border-radius:18px;padding:20px 18px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+.staff-top::after{content:'';position:absolute;right:0;top:0;bottom:0;width:150px;background:radial-gradient(ellipse at right,rgba(0,201,200,0.08) 0%,transparent 70%);pointer-events:none}
+.staff-time{font-size:46px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;line-height:1;letter-spacing:-1px}
+.staff-date{opacity:.55;font-size:13px;margin-top:4px}
+.staff-status{margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.clock-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.clock-in-btn{padding:16px;border-radius:14px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;transition:all 0.22s;background:linear-gradient(135deg,#00C9C8,#00A8A8);color:#fff;box-shadow:0 4px 20px rgba(0,201,200,0.5);-webkit-tap-highlight-color:transparent}
+.clock-in-btn:active:not(:disabled){transform:scale(0.97)}
+.clock-out-btn{padding:16px;border-radius:14px;border:2px solid rgba(231,76,111,0.7);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;transition:all 0.22s;background:linear-gradient(135deg,#C0392B,#E74C6F);color:#fff;box-shadow:0 4px 20px rgba(231,76,111,0.45);-webkit-tap-highlight-color:transparent}
+.clock-out-btn:active:not(:disabled){transform:scale(0.97)}
+.clock-in-btn:disabled,.clock-out-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;background:rgba(255,255,255,0.06)!important;box-shadow:none!important;border-color:rgba(255,255,255,0.08)!important;color:rgba(255,255,255,0.4)!important}
+
+.staff-profile-card{background:linear-gradient(135deg,rgba(30,87,153,0.07),rgba(0,201,200,0.05));border:1px solid rgba(30,87,153,0.1);border-radius:16px;padding:18px;display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.profile-big-ava{width:68px;height:68px;border-radius:16px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,var(--teal),var(--mid));display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;box-shadow:0 6px 20px rgba(0,201,200,0.25)}
+.profile-big-ava img{width:100%;height:100%;object-fit:cover}
+.profile-details .p-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:800;color:var(--navy)}
+.profile-details .p-desig{color:var(--teal);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.profile-details .p-branch{color:var(--text-light);font-size:12px;margin-top:3px}
+.info-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.info-pill{padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:600;background:rgba(30,87,153,0.09);color:var(--royal);border:1px solid rgba(30,87,153,0.13)}
+
+/* ── ATTENDANCE HISTORY ── */
+.att-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(26,58,110,0.06)}
+.att-row:last-child{border-bottom:none}
+.att-date{font-weight:700;font-size:13px;color:var(--navy)}
+.att-times{font-size:12px;color:var(--text-light);margin-top:2px}
+.att-hours{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:var(--mid);font-size:14px}
+
+/* ── LEAVE FORM ── */
+.leave-card{background:linear-gradient(135deg,rgba(0,201,200,0.06),rgba(30,87,153,0.06));border:1px solid rgba(0,201,200,0.16);border-radius:16px;padding:18px;margin-bottom:16px}
+
+/* ── BRANCH CHECK ── */
+.branch-check-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;cursor:pointer;border:1.5px solid rgba(26,58,110,0.1);background:#fff;transition:all 0.15s;font-size:13px;color:var(--text-dark);font-weight:500;-webkit-tap-highlight-color:transparent;min-height:44px}
+.branch-check-item:active{border-color:var(--teal);background:rgba(0,201,200,0.05)}
+.branch-check-item.selected{border-color:var(--teal);background:rgba(0,201,200,0.1);color:var(--royal)}
+.branch-check-item input[type=checkbox]{display:none}
+.branch-check-tick{width:20px;height:20px;border-radius:5px;border:2px solid rgba(26,58,110,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#fff;transition:all 0.15s;font-size:12px}
+.branch-check-item.selected .branch-check-tick{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* ── DEVICE REG ── */
+.device-reg-modal{max-width:100%}
+.device-reg-icon{font-size:44px;text-align:center;margin-bottom:10px}
+
+/* ── DARK EXTRAS ── */
+[data-theme="dark"] .branch-check-item{background:#1C2B45;border-color:rgba(255,255,255,0.1);color:#CBD8F0}
+[data-theme="dark"] .branch-check-item.selected{background:rgba(0,201,200,0.12);color:#7AAEE0}
+[data-theme="dark"] .branch-check-tick{background:#162035;border-color:rgba(255,255,255,0.15)}
+[data-theme="dark"] #s-branches-list{background:#1C2B45;border-color:rgba(255,255,255,0.1)}
+[data-theme="dark"] #s-multi-device{background:#1C2B45;border-color:rgba(255,255,255,0.1);color:#EDF2FF}
+[data-theme="dark"] .staff-top .badge-green{background:rgba(0,201,167,0.25);color:#00E5C8}
+[data-theme="dark"] .staff-top .badge-gray{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5)}
+[data-theme="dark"] th{background:#1A2A3E}
+
+/* ── LOADING ── */
+.loader{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page-loader{display:flex;align-items:center;justify-content:center;padding:48px 20px;flex-direction:column;gap:12px;color:var(--text-light)}
+.page-loader .big-loader{width:32px;height:32px;border:3px solid rgba(30,87,153,0.12);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-light)}
+.empty-state .e-icon{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty-state h4{font-size:15px;font-weight:700;color:var(--text-mid);margin-bottom:5px}
+.empty-state p{font-size:13px}
+
+/* ════════════════════════════════════════
+   DESKTOP (>900px)
+════════════════════════════════════════ */
+@media(min-width:901px){
+  .topbar{display:none!important}
+  #toast-container{bottom:24px;left:auto;right:20px;transform:none;max-width:320px;width:auto;align-items:flex-end}
+  .modal-overlay{align-items:center;padding:20px}
+  .modal{border-radius:20px;max-width:540px;animation:modalIn 0.28s cubic-bezier(0.34,1.56,0.64,1)}
+  @keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .modal::before{display:none}
+  .confirm-dialog{max-width:380px;border-radius:20px}
+}
+
+/* ════════════════════════════════════════
+   MOBILE (<900px)
+════════════════════════════════════════ */
+@media(max-width:900px){
+  :root{--sidebar-w:280px}
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{display:flex}
+  .main-content{margin-left:0;padding:64px 14px 28px}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .form-row{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .stats-grid{gap:8px}
+  .stat-card{padding:14px 12px}
+  .stat-num{font-size:26px}
+  .stat-icon{font-size:20px;margin-bottom:6px}
+  .stat-label{font-size:10px}
+  .page-header{flex-direction:column;align-items:stretch;gap:8px}
+  .page-header .btn{width:100%;justify-content:center;padding:14px;font-size:14px}
+  .clock-btns{grid-template-columns:1fr;gap:10px}
+  .clock-in-btn,.clock-out-btn{padding:18px;font-size:16px}
+  .staff-time{font-size:38px}
+  .card-header{flex-direction:column;align-items:stretch;gap:8px}
+  .search-bar{max-width:100%;width:100%}
+  .filter-row{flex-direction:column;align-items:stretch}
+  .filter-row > *{width:100%}
+  .modal-footer{flex-direction:column-reverse;gap:8px}
+  .modal-footer .btn{width:100%;justify-content:center;padding:15px;font-size:14px}
+  .staff-profile-card{flex-direction:column;text-align:center;gap:12px;padding:16px}
+  .profile-big-ava{margin:0 auto}
+  .info-pills{justify-content:center}
+  .auth-card{padding:28px 16px}
+  .pin-btn{padding:16px;font-size:18px}
+  .pin-display{font-size:24px;letter-spacing:10px}
+  #s-branches-list{grid-template-columns:1fr!important}
+  .form-group-app input,.form-group-app select,.form-group-app textarea{font-size:16px}
+  th,td{padding:9px 10px;font-size:12px}
+  /* Page-specific mobile layout */
+  .att-row{flex-wrap:wrap;gap:6px}
+  .page-title h2{font-size:18px}
+  .page-title p{font-size:12px}
+}
+@media(max-width:380px){
+  .stat-num{font-size:22px}
+  .stat-card{padding:12px 10px}
+  .main-content{padding:62px 12px 24px}
+  .staff-time{font-size:32px}
+  .clock-in-btn,.clock-out-btn{font-size:14px;padding:15px}
+}
+
+/* ── MISC ── */
+.divider{height:1px;background:rgba(26,58,110,0.08);margin:14px 0}
+.text-center{text-align:center}.text-teal{color:var(--teal)}.text-danger{color:var(--danger)}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
+.flex{display:flex}.flex-center{align-items:center}.gap-8{gap:8px}.gap-12{gap:12px}
+.w-full{width:100%}
+.hidden{display:none!important}
+input[type=file]{display:none}
+.photo-upload-area.has-img .upload-placeholder{display:none}
+.photo-upload-area.has-img .photo-preview{display:block}
+select option{background:#fff;color:var(--text-dark)}
+
+/* ── BRANCH MAP ── */
+.branch-map-wrap{position:relative;border-radius:12px;overflow:hidden;border:1.5px solid rgba(26,58,110,0.14);margin-bottom:14px;background:#e8f0fe}
+#branch-map{width:100%;height:220px;z-index:1}
+.map-tip{font-size:11.5px;color:var(--text-light);margin-top:5px;margin-bottom:14px;display:flex;align-items:center;gap:5px}
+[data-theme="dark"] .branch-map-wrap{border-color:rgba(255,255,255,0.1)}
+[data-theme="dark"] #branch-map{filter:invert(0.88) hue-rotate(180deg)}
+
+/* ══════════════════════════════════════
+   MOBILE CARDS — stack tables as cards
+══════════════════════════════════════ */
+/* On desktop, mobile-card-table looks like a normal table */
+.mobile-card-table table{min-width:480px}
+
+/* Responsive card rows for tables on mobile — activated at 600px */
+@media(max-width:600px){
+  .mobile-card-table .table-wrap{overflow-x:visible}
+  .mobile-card-table table{min-width:0;width:100%}
+  .mobile-card-table thead{display:none}
+  .mobile-card-table tbody tr{
+    display:block;
+    background:#fff;
+    border-radius:14px;
+    margin-bottom:10px;
+    padding:14px 14px 10px;
+    border:1px solid rgba(26,58,110,0.1);
+    box-shadow:0 2px 8px rgba(10,22,40,0.06);
+  }
+  .mobile-card-table tbody td{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    padding:5px 0;
+    border:none;
+    font-size:13px;
+    gap:10px;
+    line-height:1.5;
+    min-height:28px;
+  }
+  .mobile-card-table tbody td::before{
+    content:attr(data-label);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--text-light);
+    flex-shrink:0;
+    min-width:82px;
+    padding-top:2px;
+  }
+  .mobile-card-table tbody td:first-child{
+    border-bottom:1px solid rgba(26,58,110,0.08);
+    margin-bottom:6px;
+    padding-bottom:10px;
+  }
+  .mobile-card-table tbody tr:last-child{margin-bottom:0}
+  [data-theme="dark"] .mobile-card-table tbody tr{
+    background:#162035;
+    border-color:rgba(255,255,255,0.08);
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  [data-theme="dark"] .mobile-card-table tbody td{border-color:rgba(255,255,255,0.07)}
+  [data-theme="dark"] .mobile-card-table tbody td:first-child{border-bottom-color:rgba(255,255,255,0.07)}
+}
+
+/* ── LANDSCAPE MOBILE ── */
+@media(max-height:500px) and (orientation:landscape){
+  .sidebar{overflow-y:auto}
+  .sidebar-logo{padding:10px 20px 8px}
+  .sidebar-user{margin:5px 14px;padding:7px 12px}
+  .sidebar-user .user-ava{width:32px;height:32px;font-size:13px}
+  .sidebar-actions{padding:6px 12px 3px;gap:6px}
+  .sidebar-divider{margin:3px 12px 2px}
+  .nav-item{padding:8px 13px;min-height:38px;margin-bottom:1px;font-size:12.5px}
+  .nav-icon{font-size:15px}
+  .nav-section-label{padding:5px 12px 2px;font-size:9px}
+  .nav-signout-btn{min-height:36px;padding:7px 12px;font-size:12px}
+  .nav-theme-btn{width:36px;height:36px;font-size:15px}
+}
+
+/* ── LEAVE TYPE TABS ── */
+.leave-type-btn{
+  padding:9px 16px;border-radius:10px;border:1.5px solid rgba(26,58,110,0.14);
+  background:#fff;color:var(--text-mid);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.18s;font-family:'DM Sans',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.leave-type-btn:hover{border-color:var(--teal);background:rgba(0,201,200,0.06)}
+.leave-type-btn.active{
+  background:linear-gradient(135deg,rgba(0,201,200,0.15),rgba(30,87,153,0.12));
+  border-color:var(--teal);color:var(--royal);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+}
+[data-theme="dark"] .leave-type-btn{background:#1C2B45;border-color:rgba(255,255,255,0.1);color:#A8C0E8}
+[data-theme="dark"] .leave-type-btn.active{background:rgba(0,201,200,0.18);border-color:rgba(0,201,200,0.5);color:#00E5D4}
+
+/* ── FILE DROP ZONE ── */
+.leave-file-drop{
+  border:2px dashed rgba(26,58,110,0.2);border-radius:12px;padding:20px 16px;
+  text-align:center;cursor:pointer;transition:all 0.2s;background:#fafbff;
+  min-height:88px;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.leave-file-drop:hover,.leave-file-drop.drag-over{
+  border-color:var(--teal);background:rgba(0,201,200,0.05);
+}
+.leave-file-drop.has-file{border-style:solid;border-color:rgba(0,201,200,0.4);background:rgba(0,201,200,0.04);cursor:default}
+[data-theme="dark"] .leave-file-drop{background:#1C2B45;border-color:rgba(255,255,255,0.12)}
+[data-theme="dark"] .leave-file-drop:hover,[data-theme="dark"] .leave-file-drop.drag-over{background:rgba(0,201,200,0.1)}
+[data-theme="dark"] .leave-file-drop.has-file{background:rgba(0,201,200,0.08)}
+[data-theme="dark"] #leave-file-name{color:#EDF2FF !important}
+
+/* ── ATTACHMENT VIEWER MODAL ── */
+.attachment-view-modal{max-width:100%}
+.attach-preview-img{max-width:100%;max-height:60vh;border-radius:10px;display:block;margin:0 auto}
+.attach-preview-doc{
+  padding:24px;text-align:center;background:linear-gradient(135deg,rgba(26,58,110,0.06),rgba(0,201,200,0.04));
+  border-radius:12px;border:1px solid rgba(26,58,110,0.1);
+}
+
+
+/* ══════════════════════════════════════
+   SALARY PAGE INPUTS
+══════════════════════════════════════ */
+.sal-input{
+  width:100%;
+  padding:13px 15px;
+  border-radius:11px;
+  border:1.5px solid rgba(26,58,110,0.16);
+  background:#ffffff;
+  color:#0A1628;
+  font-size:15px;
+  font-family:'DM Sans',sans-serif;
+  line-height:1.4;
+  outline:none;
+  transition:border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none;
+  appearance:none;
+  display:block;
+  min-height:48px;
+}
+.sal-input:focus{
+  border-color:#00C9C8;
+  box-shadow:0 0 0 3px rgba(0,201,200,0.14);
+  background:#ffffff;
+}
+.sal-input::placeholder{color:#5A7BAB}
+
+/* Daily Rate — highlighted as the primary input */
+.sal-input-highlight{
+  font-size:17px;
+  font-weight:700;
+  border-color:rgba(0,201,200,0.45);
+  background:rgba(0,201,200,0.04);
+  color:#0A1628;
+}
+.sal-input-highlight:focus{
+  background:#ffffff;
+  border-color:#00C9C8;
+}
+
+/* Auto-filled fields (days worked, OT hours) */
+.sal-input-filled{
+  background:#EDF3FF;
+  border-color:rgba(30,87,153,0.22);
+  color:#1A3A6E;
+  font-weight:600;
+}
+.sal-input-filled:focus{
+  background:#EDF3FF;
+  border-color:#00C9C8;
+}
+
+/* ── DARK MODE: ALL SALARY INPUTS ── */
+[data-theme="dark"] .sal-input{
+  background:#1C2B45 !important;
+  border-color:rgba(255,255,255,0.16) !important;
+  color:#EDF2FF !important;
+}
+[data-theme="dark"] .sal-input:focus{
+  border-color:#00C9C8 !important;
+  box-shadow:0 0 0 3px rgba(0,201,200,0.18) !important;
+  background:#243550 !important;
+}
+[data-theme="dark"] .sal-input::placeholder{color:#4A6A90 !important}
+
+[data-theme="dark"] .sal-input-highlight{
+  background:#1A3050 !important;
+  border-color:rgba(0,201,200,0.55) !important;
+  color:#00E5D4 !important;
+}
+[data-theme="dark"] .sal-input-highlight:focus{
+  background:#1C3458 !important;
+}
+
+[data-theme="dark"] .sal-input-filled{
+  background:#162840 !important;
+  border-color:rgba(122,174,224,0.35) !important;
+  color:#7AAEE0 !important;
+}
+[data-theme="dark"] .sal-input-filled:focus{
+  background:#1C2E48 !important;
+  border-color:#00C9C8 !important;
+}
+
+/* Date inputs — both the value text and the calendar icon */
+[data-theme="dark"] input[type="date"]{color-scheme:dark}
+[data-theme="dark"] #sal-from,
+[data-theme="dark"] #sal-to{
+  background:#1C2B45 !important;
+  border-color:rgba(255,255,255,0.16) !important;
+  color:#EDF2FF !important;
+  color-scheme:dark;
+}
+
+/* Select dropdown */
+[data-theme="dark"] select.sal-input option{background:#162035;color:#EDF2FF}
+
+/* Quick calc result box */
+[data-theme="dark"] #quick-calc-result{
+  background:rgba(0,201,200,0.08);
+  border-color:rgba(0,201,200,0.25);
+}
+[data-theme="dark"] #calc-base{color:#EDF2FF}
+[data-theme="dark"] #calc-ot{color:#7AAEE0}
+[data-theme="dark"] #calc-total{color:#00E5D4}
+
+/* Staff banner */
+[data-theme="dark"] #sal-staff-banner{
+  background:#162035 !important;
+  border-color:rgba(255,255,255,0.07) !important;
+}
+[data-theme="dark"] #sal-staff-banner .p-name{color:#EDF2FF !important}
+
+/* Salary page labels */
+[data-theme="dark"] #page-salary .form-group-app label{
+  color:#7AAEE0;
+}
+
+/* Attendance filter date input */
+[data-theme="dark"] #att-filter-date{
+  background:#1C2B45 !important;
+  border-color:rgba(255,255,255,0.16) !important;
+  color:#EDF2FF !important;
+  color-scheme:dark;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ TOAST CONTAINER ══ -->
+<div id="toast-container"></div>
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="auth-screen">
+  <div class="auth-orb orb1"></div>
+  <div class="auth-orb orb2"></div>
+  <div class="auth-orb orb3"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="17" cy="17" r="13" stroke="white" stroke-width="2.2" fill="none" opacity="0.9"/>
+          <circle cx="17" cy="17" r="1.8" fill="white"/>
+          <line x1="17" y1="17" x2="17" y2="8" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="17" y1="17" x2="23" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 5 L19 2 L17 0 L15 2 Z" fill="white" opacity="0.6"/>
+        </svg>
+      </div>
+      <h1 class="brand-wordmark" style="font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:5px;font-weight:400">CLOCKWISE</h1>
+      <p>Staff Attendance Management</p>
+    </div>
+    <!-- Role Selector -->
+    <div class="role-selector" id="role-selector">
+      <button class="role-btn active" onclick="setRole('admin')" id="role-admin">
+        <div class="role-icon">🛡️</div>
+        HR / Admin
+      </button>
+      <button class="role-btn" onclick="setRole('staff')" id="role-staff">
+        <div class="role-icon">👤</div>
+        Staff
+      </button>
+    </div>
+    <!-- Admin Login Form -->
+    <div id="admin-login-form">
+      <div class="auth-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="admin-username" placeholder="admin" autocomplete="off">
+        </div>
+        <div class="form-group" id="admin-password-group">
+          <label>Password</label>
+          <input type="password" id="admin-password" placeholder="Enter password" onkeydown="if(event.key==='Enter')adminLogin()">
+        </div>
+        <button class="btn-primary" onclick="adminLogin()">Sign In</button>
+      </div>
+    </div>
+    <!-- Staff PIN Login -->
+    <div id="staff-login-form" class="hidden">
+      <div class="pin-display" id="pin-display">••••</div>
+      <div class="pin-grid">
+        <button class="pin-btn" onclick="pinInput('1')">1</button>
+        <button class="pin-btn" onclick="pinInput('2')">2</button>
+        <button class="pin-btn" onclick="pinInput('3')">3</button>
+        <button class="pin-btn" onclick="pinInput('4')">4</button>
+        <button class="pin-btn" onclick="pinInput('5')">5</button>
+        <button class="pin-btn" onclick="pinInput('6')">6</button>
+        <button class="pin-btn" onclick="pinInput('7')">7</button>
+        <button class="pin-btn" onclick="pinInput('8')">8</button>
+        <button class="pin-btn" onclick="pinInput('9')">9</button>
+        <button class="pin-btn" onclick="pinClear()" style="font-size:14px">Clear</button>
+        <button class="pin-btn" onclick="pinInput('0')">0</button>
+        <button class="pin-btn" onclick="pinDelete()" style="font-size:14px">⌫</button>
+      </div>
+      <button class="btn-primary mt-12 w-full" onclick="staffLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FIRST TIME ADMIN SETUP MODAL ══ -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔐 First-Time Setup</h3>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-mid);font-size:13.5px;margin-bottom:18px">Welcome! Please set your admin password and PIN to get started.</p>
+      <div class="form-group-app">
+        <label>New Password</label>
+        <input type="password" id="setup-password" placeholder="Create a strong password">
+      </div>
+      <div class="form-group-app">
+        <label>Confirm Password</label>
+        <input type="password" id="setup-password2" placeholder="Repeat password">
+      </div>
+      <div class="form-group-app">
+        <label>Admin PIN (4–6 digits)</label>
+        <input type="password" id="setup-pin" placeholder="e.g. 1234" maxlength="6" inputmode="numeric">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-blue" onclick="saveAdminSetup()">Save & Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <!-- Mobile Topbar -->
+  <div class="topbar" id="topbar">
+    <div class="topbar-brand">
+      <div class="tb-icon">
+        <svg width="18" height="18" viewBox="0 0 34 34" fill="none">
+          <circle cx="17" cy="17" r="13" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="17" cy="17" r="1.8" fill="white"/>
+          <line x1="17" y1="17" x2="17" y2="9" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="17" y1="17" x2="22" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span>CLOCKWISE</span>
+    </div>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+      <svg id="hamburger-icon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <line x1="3" y1="6" x2="19" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <div class="s-icon">
+          <svg width="22" height="22" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="17" cy="17" r="13" stroke="white" stroke-width="2.4" fill="none" opacity="0.95"/>
+            <circle cx="17" cy="17" r="1.8" fill="white"/>
+            <line x1="17" y1="17" x2="17" y2="8.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="17" y1="17" x2="22.5" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2 style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;font-weight:400;line-height:1.1">CLOCKWISE</h2>
+          <p>Attendance System</p>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-ava" id="sidebar-ava">👤</div>
+      <div class="user-info">
+        <div class="u-name" id="sidebar-name">Loading...</div>
+        <div class="u-role" id="sidebar-role">—</div>
+      </div>
+    </div>
+    <!-- Sign Out + Theme Toggle — pinned right below user card -->
+    <div class="sidebar-actions">
+      <button class="nav-signout-btn" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+      <button class="nav-theme-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
+        <span id="theme-icon">🌙</span>
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  </aside>
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <!-- ADMIN PAGES -->
+    <div class="page" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title"><h2>Dashboard</h2><p id="dash-date">Today</p></div>
+        <button class="btn btn-glass" onclick="loadDashboard()">🔄 Refresh</button>
+      </div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div class="glass-card">
+        <div class="card-header"><h3>Today's Attendance</h3></div>
+        <div class="table-wrap mobile-card-table">
+          <table><thead><tr><th>Staff</th><th>Branch</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr></thead>
+          <tbody id="today-att-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-staff">
+      <div class="page-header">
+        <div class="page-title"><h2>Staff Management</h2><p>Manage all employees</p></div>
+        <button class="btn btn-blue" onclick="openAddStaff()">+ Add Staff</button>
+      </div>
+      <div class="glass-card">
+        <div class="card-header">
+          <h3>All Staff</h3>
+          <div class="search-bar"><span>🔍</span><input type="text" id="staff-search" placeholder="Search name, PIN, branch…" oninput="filterStaff()"></div>
+        </div>
+        <div class="table-wrap mobile-card-table">
+          <table><thead><tr><th>Staff</th><th>PIN</th><th>Branch</th><th>Designation</th><th>Salary</th><th>Device</th><th>Actions</th></tr></thead>
+          <tbody id="staff-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-attendance">
+      <div class="page-header">
+        <div class="page-title"><h2>Attendance Records</h2><p>Full attendance history</p></div>
+        <button class="btn btn-teal" onclick="exportAttendance()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+      <div class="glass-card">
+        <div class="card-header">
+          <h3>Records</h3>
+          <div class="filter-row" style="margin:0">
+            <input type="date" id="att-filter-date" class="btn btn-glass sal-input" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 13px" onchange="loadAttendanceAdmin()">
+            <div class="search-bar"><span>🔍</span><input type="text" id="att-search" placeholder="Search staff…" oninput="loadAttendanceAdmin()"></div>
+          </div>
+        </div>
+        <div class="table-wrap mobile-card-table">
+          <table><thead><tr><th>Staff</th><th>Date</th><th>Branch</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr></thead>
+          <tbody id="admin-att-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALARY & PAY PAGE -->
+    <div class="page" id="page-salary">
+      <div class="page-header">
+        <div class="page-title"><h2>Salary & Pay</h2><p>Calculate staff pay from attendance</p></div>
+        <button class="btn btn-teal" onclick="exportSalaryReport()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+
+      <!-- Staff Picker -->
+      <div class="glass-card" style="margin-bottom:16px">
+        <div class="card-body">
+          <div class="form-group-app" style="margin:0">
+            <label>Select Staff Member</label>
+            <select id="sal-staff-select" class="sal-input" onchange="loadStaffSalary()" style="cursor:pointer">
+              <option value="">— Choose a staff member —</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Salary Panel (hidden until staff selected) -->
+      <div id="sal-staff-panel" style="display:none">
+
+        <!-- Staff Info Banner -->
+        <div id="sal-staff-banner" class="glass-card" style="margin-bottom:16px;overflow:visible"></div>
+
+        <!-- Date Range for this staff -->
+        <div class="glass-card" style="margin-bottom:16px">
+          <div class="card-header"><h3>📅 Attendance Period</h3></div>
+          <div class="card-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group-app" style="margin:0;flex:1;min-width:140px">
+                <label>From</label>
+                <input type="date" id="sal-from" class="sal-input" onchange="loadStaffSalary()">
+              </div>
+              <div class="form-group-app" style="margin:0;flex:1;min-width:140px">
+                <label>To</label>
+                <input type="date" id="sal-to" class="sal-input" onchange="loadStaffSalary()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance Summary Cards -->
+        <div id="sal-att-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px"></div>
+
+        <!-- Attendance Records -->
+        <div class="glass-card" style="margin-bottom:16px">
+          <div class="card-header"><h3>📋 Attendance Records</h3><span id="sal-record-count" style="font-size:12px;color:var(--text-light)"></span></div>
+          <div class="table-wrap mobile-card-table">
+            <table>
+              <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>OT Hours</th><th>Status</th></tr></thead>
+              <tbody id="sal-att-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pay Calculator -->
+        <div class="glass-card">
+          <div class="card-header"><h3>💰 Pay Calculator</h3><span style="font-size:12px;color:var(--text-light)">Values auto-filled from attendance</span></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:20px">
+              <div class="form-group-app" style="margin:0">
+                <label>Daily Pay (AED)</label>
+                <input type="number" id="sal-daily-rate" class="sal-input sal-input-highlight" placeholder="e.g. 300" min="0" step="0.01" oninput="recalcSalary()">
+              </div>
+              <div class="form-group-app" style="margin:0">
+                <label>Days Worked</label>
+                <input type="number" id="sal-days-worked" class="sal-input sal-input-filled" placeholder="0" min="0" oninput="recalcSalary()">
+              </div>
+              <div class="form-group-app" style="margin:0">
+                <label>Overtime Hours</label>
+                <input type="number" id="sal-ot-hours" class="sal-input sal-input-filled" placeholder="0" min="0" step="0.5" oninput="recalcSalary()">
+              </div>
+              <div class="form-group-app" style="margin:0">
+                <label>OT Rate / Hour (AED)</label>
+                <input type="number" id="sal-ot-rate" class="sal-input" placeholder="Auto" min="0" step="0.01" oninput="recalcSalary()">
+              </div>
+            </div>
+
+            <!-- Pay Breakdown Result -->
+            <div id="sal-result" style="background:linear-gradient(135deg,#0A1628,#0D2044);border-radius:16px;padding:22px;color:#fff;display:none">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;margin-bottom:18px">
+                <div>
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.55;margin-bottom:4px">Daily Rate</div>
+                  <div id="sal-r-daily" style="font-size:18px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif">AED 0</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.55;margin-bottom:4px">Days × Rate</div>
+                  <div id="sal-r-base" style="font-size:18px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif">AED 0</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#F5A623;margin-bottom:4px">⏱ Overtime</div>
+                  <div id="sal-r-ot" style="font-size:18px;font-weight:800;color:#F5C842;font-family:'Plus Jakarta Sans',sans-serif">AED 0</div>
+                </div>
+              </div>
+              <div style="border-top:1px solid rgba(255,255,255,0.12);padding-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                <div>
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#00C9C8;margin-bottom:4px">Total Pay</div>
+                  <div id="sal-r-total" style="font-size:36px;font-weight:800;color:#00E5D4;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-1px">AED 0</div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button class="btn btn-teal" onclick="saveSalaryToStaff()">💾 Save as Base Salary</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- end sal-staff-panel -->
+
+      <!-- Quick Standalone Calculator -->
+      <div class="glass-card" id="sal-quick-card" style="margin-top:16px">
+        <div class="card-header">
+          <h3>🧮 Quick Pay Calculator</h3>
+          <span style="font-size:12px;color:var(--text-light)">Standalone — no staff required</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:16px">
+            <div class="form-group-app" style="margin:0"><label>Daily Rate (AED)</label><input type="number" id="calc-daily" class="sal-input" placeholder="e.g. 300" min="0" oninput="quickCalc()"></div>
+            <div class="form-group-app" style="margin:0"><label>Days Worked</label><input type="number" id="calc-days" class="sal-input" placeholder="e.g. 22" min="0" oninput="quickCalc()"></div>
+            <div class="form-group-app" style="margin:0"><label>Overtime Hours</label><input type="number" id="calc-ot-hours" class="sal-input" placeholder="e.g. 10" min="0" step="0.5" oninput="quickCalc()"></div>
+            <div class="form-group-app" style="margin:0"><label>OT Rate / Hour (AED)</label><input type="number" id="calc-ot-rate" class="sal-input" placeholder="e.g. 50" min="0" oninput="quickCalc()"></div>
+          </div>
+          <div id="quick-calc-result" style="background:linear-gradient(135deg,rgba(0,201,200,0.08),rgba(30,87,153,0.06));border:1px solid rgba(0,201,200,0.2);border-radius:12px;padding:16px;display:none">
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+              <div style="flex:1;min-width:120px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light)">Base Pay</div><div id="calc-base" style="font-size:22px;font-weight:800;color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif">AED 0</div></div>
+              <div style="flex:1;min-width:120px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light)">Overtime</div><div id="calc-ot" style="font-size:22px;font-weight:800;color:var(--mid);font-family:'Plus Jakarta Sans',sans-serif">AED 0</div></div>
+              <div style="flex:1;min-width:160px;border-left:2px solid rgba(0,201,200,0.3);padding-left:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--teal)">Total</div><div id="calc-total" style="font-size:28px;font-weight:800;color:var(--teal);font-family:'Plus Jakarta Sans',sans-serif">AED 0</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-branches">
+      <div class="page-header">
+        <div class="page-title"><h2>Branch Management</h2><p>Geo-fencing settings</p></div>
+        <button class="btn btn-blue" onclick="openAddBranch()">+ Add Branch</button>
+      </div>
+      <div class="glass-card">
+        <div class="card-header"><h3>Branches</h3></div>
+        <div class="table-wrap mobile-card-table">
+          <table><thead><tr><th>Branch Name</th><th>Latitude</th><th>Longitude</th><th>Radius (m)</th><th>Staff Count</th><th>Actions</th></tr></thead>
+          <tbody id="branches-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-leaves">
+      <div class="page-header">
+        <div class="page-title"><h2>Leave Requests</h2><p>Manage vacation approvals</p></div>
+      </div>
+      <div class="glass-card">
+        <div class="card-header">
+          <h3>All Requests</h3>
+          <select id="leave-filter" class="btn btn-glass" style="font-family:'DM Sans',sans-serif;font-size:12px" onchange="loadLeavesAdmin()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="table-wrap mobile-card-table">
+          <table><thead><tr><th>Staff</th><th>Type</th><th>Start</th><th>End</th><th>Reason</th><th>Attachment</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="leaves-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title"><h2>Settings</h2><p>Admin account & system</p></div>
+      </div>
+      <div style="max-width:520px">
+        <div class="glass-card" style="margin-bottom:20px">
+          <div class="card-header"><h3>🔑 Change Admin Password</h3></div>
+          <div class="card-body">
+            <div class="form-group-app"><label>Current Password</label><input type="password" id="cur-pass" placeholder="Current password"></div>
+            <div class="form-group-app"><label>New Password</label><input type="password" id="new-pass" placeholder="New password"></div>
+            <div class="form-group-app"><label>Confirm New Password</label><input type="password" id="new-pass2" placeholder="Repeat new password"></div>
+            <button class="btn btn-blue" onclick="changeAdminPassword()">Update Password</button>
+          </div>
+        </div>
+        <div class="glass-card" style="margin-bottom:20px">
+          <div class="card-header"><h3>🔢 Change Admin PIN</h3></div>
+          <div class="card-body">
+            <div class="form-group-app"><label>New PIN (4–6 digits)</label><input type="password" id="new-pin" placeholder="New PIN" maxlength="6" inputmode="numeric"></div>
+            <div class="form-group-app"><label>Confirm PIN</label><input type="password" id="new-pin2" placeholder="Repeat PIN" maxlength="6" inputmode="numeric"></div>
+            <button class="btn btn-blue" onclick="changeAdminPin()">Update PIN</button>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-header"><h3>📱 Device Management</h3></div>
+          <div class="card-body">
+            <p style="color:var(--text-light);font-size:13px;margin-bottom:14px">Unregister a staff device to allow them to log in from a new device.</p>
+            <div id="device-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAFF PAGES -->
+    <div class="page" id="page-staff-home">
+      <div id="staff-home-content"></div>
+    </div>
+
+    <div class="page" id="page-staff-history">
+      <div class="page-header">
+        <div class="page-title"><h2>Attendance History</h2><p>Your clock-in/out records</p></div>
+      </div>
+      <div class="glass-card">
+        <div class="card-header"><h3>My Records</h3></div>
+        <div id="staff-att-list" class="card-body"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-staff-leave">
+      <div class="page-header">
+        <div class="page-title"><h2>Leave Requests</h2><p>Request & track your leave</p></div>
+      </div>
+
+      <!-- New Leave Request Form -->
+      <div class="leave-card">
+        <h3 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px">📋 New Leave Request</h3>
+
+        <!-- Leave Type Tabs -->
+        <div class="leave-type-tabs" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="leave-type-btn active" id="ltype-vacation" onclick="setLeaveType('vacation')">
+            🌴 Vacation
+          </button>
+          <button class="leave-type-btn" id="ltype-sick" onclick="setLeaveType('sick')">
+            🤒 Sick Leave
+          </button>
+          <button class="leave-type-btn" id="ltype-emergency" onclick="setLeaveType('emergency')">
+            🚨 Emergency
+          </button>
+          <button class="leave-type-btn" id="ltype-other" onclick="setLeaveType('other')">
+            📌 Other
+          </button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group-app"><label>Start Date</label><input type="date" id="leave-start"></div>
+          <div class="form-group-app"><label>End Date</label><input type="date" id="leave-end"></div>
+        </div>
+        <div class="form-group-app">
+          <label>Reason / Description</label>
+          <textarea id="leave-reason" placeholder="Describe your reason…"></textarea>
+        </div>
+
+        <!-- File Attachment -->
+        <div class="form-group-app">
+          <label>Supporting Document <span style="color:var(--text-light);font-weight:400;text-transform:none;letter-spacing:0">(optional — medical cert, etc.)</span></label>
+          <div class="leave-file-drop" id="leave-file-drop" onclick="document.getElementById('leave-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleLeaveFileDrop(event)">
+            <div id="leave-file-placeholder">
+              <div style="font-size:28px;margin-bottom:6px">📎</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-mid)">Click or drag & drop file</div>
+              <div style="font-size:11px;color:var(--text-light);margin-top:3px">JPG, PNG, PDF, DOC, DOCX, XLSX — max 10MB</div>
+            </div>
+            <div id="leave-file-selected" style="display:none">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span id="leave-file-icon" style="font-size:24px">📄</span>
+                <div style="flex:1;min-width:0">
+                  <div id="leave-file-name" style="font-size:13px;font-weight:600;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+                  <div id="leave-file-size" style="font-size:11px;color:var(--text-light)"></div>
+                </div>
+                <button class="btn btn-glass btn-xs" onclick="event.stopPropagation();clearLeaveFile()">✕ Remove</button>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="leave-file-input" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" onchange="handleLeaveFileSelect(event)" style="display:none">
+        </div>
+
+        <button class="btn btn-blue" onclick="submitLeave()" id="leave-submit-btn" style="width:100%;justify-content:center;padding:14px">
+          Submit Request
+        </button>
+      </div>
+
+      <!-- Leave History -->
+      <div class="glass-card">
+        <div class="card-header"><h3>My Leave History</h3></div>
+        <div class="table-wrap mobile-card-table">
+          <table>
+            <thead><tr><th>Type</th><th>Start</th><th>End</th><th>Reason</th><th>Attachment</th><th>Status</th></tr></thead>
+            <tbody id="staff-leave-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-staff-profile">
+      <div class="page-header">
+        <div class="page-title"><h2>My Profile</h2><p>Personal details</p></div>
+      </div>
+      <div id="staff-profile-content"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ══ MODALS ══ -->
+<!-- Add/Edit Staff Modal -->
+<div class="modal-overlay" id="staff-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="staff-modal-title">Add Staff</h3>
+      <button class="modal-close" onclick="closeModal('staff-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="photo-upload-area" id="photo-upload-area" onclick="document.getElementById('photo-file').click()">
+        <img class="photo-preview" id="photo-preview-img">
+        <div class="upload-placeholder">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Click to upload staff photo</div>
+        </div>
+      </div>
+      <input type="file" id="photo-file" accept="image/*" onchange="handlePhotoUpload(event)">
+      <div style="height:14px"></div>
+      <div class="form-row">
+        <div class="form-group-app"><label>Full Name</label><input type="text" id="s-name" placeholder="John Doe"></div>
+        <div class="form-group-app"><label>PIN (4–6 digits)</label><input type="text" id="s-pin" placeholder="1234" maxlength="6" inputmode="numeric"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-app"><label>Designation</label><input type="text" id="s-designation" placeholder="Sales Associate"></div>
+        <div class="form-group-app"><label>Salary</label><input type="number" id="s-salary" placeholder="0.00"></div>
+      </div>
+      <div class="form-group-app">
+        <label>Assigned Branches <span style="color:var(--teal);font-weight:400;text-transform:none;letter-spacing:0">(select one or more)</span></label>
+        <div id="s-branches-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:160px;overflow-y:auto;padding:10px;border:1.5px solid rgba(26,58,110,0.14);border-radius:12px;background:rgba(255,255,255,0.5)">
+          <div style="color:var(--text-light);font-size:12px;grid-column:1/-1">Loading branches…</div>
+        </div>
+      </div>
+      <div class="form-group-app" style="margin-top:4px">
+        <label>Device Access</label>
+        <select id="s-multi-device" style="padding:11px 14px;border-radius:12px;border:1.5px solid rgba(26,58,110,0.14);background:rgba(255,255,255,0.9);color:var(--text-dark);font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none">
+          <option value="false">🔒 Single device only</option>
+          <option value="true">📱 Allow multiple devices</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" onclick="closeModal('staff-modal')">Cancel</button>
+      <button class="btn btn-blue" onclick="saveStaff()">Save Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Branch Modal -->
+<div class="modal-overlay" id="branch-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="branch-modal-title">Add Branch</h3>
+      <button class="modal-close" onclick="closeModal('branch-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group-app"><label>Branch Name</label><input type="text" id="b-name" placeholder="e.g. Main Branch – Downtown"></div>
+      <!-- Interactive Map -->
+      <div class="form-group-app" style="margin-bottom:6px">
+        <label>📍 Pin Location on Map</label>
+      </div>
+      <div class="branch-map-wrap">
+        <div id="branch-map"></div>
+      </div>
+      <p class="map-tip">📌 Click the map to set the branch pin. Drag the pin to adjust. The blue circle shows the allowed radius.</p>
+      <div class="form-row">
+        <div class="form-group-app"><label>Latitude</label><input type="number" id="b-lat" placeholder="24.466667" step="any" oninput="syncMapFromInputs()"></div>
+        <div class="form-group-app"><label>Longitude</label><input type="number" id="b-lng" placeholder="54.366667" step="any" oninput="syncMapFromInputs()"></div>
+      </div>
+      <div class="form-group-app">
+        <label>Allowed Radius (meters)</label>
+        <input type="number" id="b-radius" placeholder="100" min="10" oninput="syncMapFromInputs()">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-glass btn-sm" onclick="useMyLocation()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Use My Location
+        </button>
+        <p id="loc-status" style="font-size:12px;color:var(--text-light);margin:0"></p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" onclick="closeModal('branch-modal')">Cancel</button>
+      <button class="btn btn-blue" onclick="saveBranch()">Save Branch</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal confirm-dialog">
+    <div class="modal-body" style="padding:28px">
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
+      <h3 style="text-align:center;margin-bottom:8px;font-size:18px" id="confirm-title">Confirm Action</h3>
+      <p class="confirm-msg" id="confirm-msg">Are you sure?</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;gap:12px">
+      <button class="btn btn-glass" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="confirmOk()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Device Registration Modal -->
+<div class="modal-overlay" id="device-reg-modal">
+  <div class="modal device-reg-modal">
+    <div class="modal-body" style="padding:32px 28px;text-align:center">
+      <div class="device-reg-icon">📱</div>
+      <h3 style="font-size:20px;margin-bottom:10px;color:var(--navy)">Register This Device</h3>
+      <p style="color:var(--text-light);font-size:13.5px;line-height:1.7;margin-bottom:20px">
+        This is your first login on this device.<br>
+        Do you want to register <strong style="color:var(--navy)" id="dreg-device-label">this device</strong> as your primary device?<br><br>
+        <span style="font-size:12px;color:var(--warning)">⚠️ Once registered, only this device can log in unless HR resets it.</span>
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-glass" onclick="declineDeviceReg()">Cancel Login</button>
+        <button class="btn btn-blue" onclick="confirmDeviceReg()">✅ Register Device</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Override Modal -->
+<div class="modal-overlay" id="salary-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>💰 Adjust Pay — <span id="sal-modal-name">Staff</span></h3>
+      <button class="modal-close" onclick="closeModal('salary-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:linear-gradient(135deg,rgba(0,201,200,0.06),rgba(30,87,153,0.06));border:1px solid rgba(0,201,200,0.15);border-radius:12px;padding:14px;margin-bottom:18px" id="sal-modal-summary"></div>
+      <div class="form-row">
+        <div class="form-group-app"><label>Daily Rate (AED)</label><input type="number" id="sal-daily" placeholder="0" min="0" oninput="updateSalaryModal()"></div>
+        <div class="form-group-app"><label>Days Worked</label><input type="number" id="sal-days" placeholder="0" min="0" oninput="updateSalaryModal()"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-app"><label>Overtime Hours</label><input type="number" id="sal-ot-hrs" placeholder="0" min="0" step="0.5" oninput="updateSalaryModal()"></div>
+        <div class="form-group-app"><label>OT Rate / Hour (AED)</label><input type="number" id="sal-ot-rate" placeholder="0" min="0" oninput="updateSalaryModal()"></div>
+      </div>
+      <div style="background:#f0fff8;border:1px solid rgba(0,201,167,0.25);border-radius:12px;padding:14px;margin-top:4px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);margin-bottom:8px">Pay Breakdown</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-mid);margin-bottom:4px"><span>Base Pay</span><span id="sal-m-base">AED 0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-mid);margin-bottom:8px"><span>Overtime</span><span id="sal-m-ot">AED 0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--teal)"><span>Total Pay</span><span id="sal-m-total">AED 0</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" onclick="closeModal('salary-modal')">Cancel</button>
+      <button class="btn btn-blue" onclick="saveSalaryOverride()">Save & Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Attachment Viewer Modal -->
+<div class="modal-overlay" id="attachment-modal">
+  <div class="modal attachment-view-modal">
+    <div class="modal-header">
+      <h3 id="attach-modal-title">📎 Attachment</h3>
+      <button class="modal-close" onclick="closeModal('attachment-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="attach-modal-body" style="padding:20px">
+      <div class="page-loader"><div class="big-loader"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" onclick="closeModal('attachment-modal')">Close</button>
+      <a id="attach-download-btn" class="btn btn-blue" download target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  SUPABASE CONFIG
+// ════════════════════════════════════════════════════════════
+const SB_URL = 'https://ngfceoxsheudvjnatlif.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nZmNlb3hzaGV1ZHZqbmF0bGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0ODg3ODcsImV4cCI6MjA4OTA2NDc4N30.xwI-ADuctjrnACYN2jwB3LIKhJhwpqBB1FZK-mRR6Ls';
+
+const sb = {
+  async query(table, params = {}) {
+    let url = `${SB_URL}/rest/v1/${table}?`;
+    const headers = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+    const qp = new URLSearchParams();
+    if (params.select) qp.set('select', params.select);
+    if (params.filter) Object.entries(params.filter).forEach(([k, v]) => qp.set(k, v));
+    if (params.order) qp.set('order', params.order);
+    if (params.limit) qp.set('limit', params.limit);
+    url += qp.toString();
+    const r = await fetch(url, { headers });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async insert(table, data) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async update(table, data, filter) {
+    let url = `${SB_URL}/rest/v1/${table}?`;
+    const qp = new URLSearchParams(filter);
+    url += qp.toString();
+    const r = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async delete(table, filter) {
+    let url = `${SB_URL}/rest/v1/${table}?`;
+    url += new URLSearchParams(filter).toString();
+    const r = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return true;
+  },
+  async rpc(fn, params = {}) {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  storage: {
+    async upload(bucket, path, file) {
+      const r = await fetch(`${SB_URL}/storage/v1/object/${bucket}/${path}`, {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
+        body: file
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return `${SB_URL}/storage/v1/object/public/${bucket}/${path}`;
+    }
+  }
+};
+
+// ════════════════════════════════════════════════════════════
+//  APP STATE
+// ════════════════════════════════════════════════════════════
+let currentRole = 'admin';
+let currentUser = null;  // staff object
+let pinBuffer = '';
+let editingStaffId = null;
+let editingBranchId = null;
+let photoDataUrl = null;
+let confirmCallback = null;
+let allStaff = [];
+let allBranches = [];
+
+// Device fingerprint
+function getDeviceId() {
+  let id = localStorage.getItem('cw_device_id');
+  if (!id) { id = 'dev_' + Math.random().toString(36).substr(2, 16) + Date.now(); localStorage.setItem('cw_device_id', id); }
+  return id;
+}
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warn: '⚠️' };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, 3200);
+}
+
+// ════════════════════════════════════════════════════════════
+//  CONFIRM DIALOG
+// ════════════════════════════════════════════════════════════
+function showConfirm(title, msg, icon, cb, btnLabel = 'Confirm', danger = true) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-icon').textContent = icon;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.textContent = btnLabel;
+  btn.className = `btn ${danger ? 'btn-danger' : 'btn-blue'}`;
+  confirmCallback = cb;
+  openModal('confirm-modal');
+}
+function confirmOk() { closeModal('confirm-modal'); if (confirmCallback) confirmCallback(); }
+
+// ════════════════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════════════════
+function setRole(role) {
+  currentRole = role;
+  document.getElementById('role-admin').classList.toggle('active', role === 'admin');
+  document.getElementById('role-staff').classList.toggle('active', role === 'staff');
+  document.getElementById('admin-login-form').classList.toggle('hidden', role !== 'admin');
+  document.getElementById('staff-login-form').classList.toggle('hidden', role !== 'staff');
+  pinBuffer = ''; updatePinDisplay();
+}
+
+async function adminLogin() {
+  const user = document.getElementById('admin-username').value.trim();
+  const pass = document.getElementById('admin-password').value;
+  if (user !== 'admin') { toast('Invalid username', 'error'); return; }
+  try {
+    const rows = await sb.query('cw_settings', { filter: { key: 'eq.admin_password' } });
+    if (!rows.length || !rows[0].value) {
+      // First time – show setup
+      openModal('setup-modal'); return;
+    }
+    if (rows[0].value !== pass) { toast('Wrong password', 'error'); return; }
+    currentUser = { role: 'admin', name: 'Administrator' };
+    enterApp('admin');
+  } catch(e) { toast('Connection error: ' + e.message, 'error'); }
+}
+
+async function saveAdminSetup() {
+  const p1 = document.getElementById('setup-password').value;
+  const p2 = document.getElementById('setup-password2').value;
+  const pin = document.getElementById('setup-pin').value;
+  if (!p1 || p1.length < 4) { toast('Password must be at least 4 characters', 'error'); return; }
+  if (p1 !== p2) { toast('Passwords do not match', 'error'); return; }
+  if (!/^\d{4,6}$/.test(pin)) { toast('PIN must be 4–6 digits', 'error'); return; }
+  try {
+    await upsertSetting('admin_password', p1);
+    await upsertSetting('admin_pin', pin);
+    closeModal('setup-modal');
+    currentUser = { role: 'admin', name: 'Administrator' };
+    toast('Setup complete! Welcome to CLOCKWISE 🎉', 'success');
+    enterApp('admin');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function upsertSetting(key, value) {
+  const rows = await sb.query('cw_settings', { filter: { key: `eq.${key}` } });
+  if (rows.length) await sb.update('cw_settings', { value }, { key: `eq.${key}` });
+  else await sb.insert('cw_settings', { key, value });
+}
+
+async function getSetting(key) {
+  const rows = await sb.query('cw_settings', { filter: { key: `eq.${key}` } });
+  return rows.length ? rows[0].value : null;
+}
+
+// PIN for staff
+function pinInput(d) { if (pinBuffer.length < 6) { pinBuffer += d; updatePinDisplay(); } }
+function pinDelete() { pinBuffer = pinBuffer.slice(0, -1); updatePinDisplay(); }
+function pinClear() { pinBuffer = ''; updatePinDisplay(); }
+function updatePinDisplay() {
+  const d = document.getElementById('pin-display');
+  d.textContent = pinBuffer.length ? '●'.repeat(pinBuffer.length) : '••••';
+}
+
+let pendingStaffLogin = null; // holds staff object during device reg flow
+
+async function staffLogin() {
+  if (!pinBuffer) { toast('Enter your PIN', 'warn'); return; }
+  try {
+    const rows = await sb.query('cw_staff', { filter: { pin: `eq.${pinBuffer}` } });
+    if (!rows.length) { toast('Invalid PIN', 'error'); pinClear(); return; }
+    const staff = rows[0];
+    const deviceId = getDeviceId();
+
+    // Has an existing registered device
+    if (staff.device_id) {
+      if (staff.device_id === deviceId) {
+        // Same device — allow
+        currentUser = { ...staff, role: 'staff' };
+        enterApp('staff');
+        return;
+      }
+      // Different device
+      if (staff.allow_multi_device === true) {
+        // Multi-device allowed — login directly
+        currentUser = { ...staff, role: 'staff' };
+        enterApp('staff');
+        return;
+      }
+      // Single device — blocked
+      toast('This account is registered to another device. Contact HR to reset it.', 'error');
+      pinClear(); return;
+    }
+
+    // No device registered yet — show registration modal
+    pendingStaffLogin = staff;
+    const browser = navigator.userAgent.includes('Mobile') ? '📱 Mobile' : '💻 Desktop';
+    document.getElementById('dreg-device-label').textContent = `${browser} (ID: ${deviceId.substr(0,12)}…)`;
+    openModal('device-reg-modal');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function confirmDeviceReg() {
+  if (!pendingStaffLogin) return;
+  const deviceId = getDeviceId();
+  try {
+    await sb.update('cw_staff', { device_id: deviceId }, { id: `eq.${pendingStaffLogin.id}` });
+    closeModal('device-reg-modal');
+    toast('Device registered successfully! ✅', 'success');
+    currentUser = { ...pendingStaffLogin, device_id: deviceId, role: 'staff' };
+    pendingStaffLogin = null;
+    enterApp('staff');
+  } catch(e) { toast('Error registering device: ' + e.message, 'error'); }
+}
+
+function declineDeviceReg() {
+  pendingStaffLogin = null;
+  closeModal('device-reg-modal');
+  pinClear();
+  toast('Login cancelled', 'info');
+}
+
+function logout() {
+  showConfirm('Sign Out', 'Are you sure you want to sign out?', '🚪', () => {
+    currentUser = null; pinBuffer = '';
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('admin-password').value = '';
+    updatePinDisplay();
+  }, 'Sign Out', true);
+}
+
+// ════════════════════════════════════════════════════════════
+//  ENTER APP
+// ════════════════════════════════════════════════════════════
+function enterApp(role) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  buildNav(role);
+  updateSidebarUser();
+  // Sync theme toggle state after sidebar renders
+  const saved = localStorage.getItem('cw_theme');
+  applyTheme(saved === 'dark');
+  if (role === 'admin') { loadDashboard(); navigateTo('dashboard'); }
+  else { loadStaffHome(); navigateTo('staff-home'); }
+}
+
+function buildNav(role) {
+  const nav = document.getElementById('sidebar-nav');
+  const adminNav = [
+    { section: 'Overview', items: [{ id: 'dashboard', icon: '📊', label: 'Dashboard' }] },
+    { section: 'Management', items: [
+      { id: 'staff', icon: '👥', label: 'Staff' },
+      { id: 'attendance', icon: '🕐', label: 'Attendance' },
+      { id: 'salary', icon: '💰', label: 'Salary & Pay' },
+      { id: 'branches', icon: '🏢', label: 'Branches' },
+      { id: 'leaves', icon: '🌴', label: 'Leave Requests', badge: 'leaves' },
+    ]},
+    { section: 'System', items: [{ id: 'settings', icon: '⚙️', label: 'Settings' }] }
+  ];
+  const staffNav = [
+    { section: 'My Workspace', items: [
+      { id: 'staff-home', icon: '🏠', label: 'Home' },
+      { id: 'staff-history', icon: '📋', label: 'Attendance History' },
+      { id: 'staff-leave', icon: '🌴', label: 'Leave Requests' },
+      { id: 'staff-profile', icon: '👤', label: 'My Profile' },
+    ]}
+  ];
+  const items = role === 'admin' ? adminNav : staffNav;
+  nav.innerHTML = items.map(s => `
+    <div class="nav-section">
+      <div class="nav-section-label">${s.section}</div>
+      ${s.items.map(i => `
+        <div class="nav-item" id="nav-${i.id}" onclick="navigateTo('${i.id}')">
+          <span class="nav-icon">${i.icon}</span>
+          <span>${i.label}</span>
+          ${i.badge ? `<span class="nav-badge hidden" id="badge-${i.badge}">0</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  updateLeavesBadge();
+}
+
+async function updateLeavesBadge() {
+  if (currentUser?.role !== 'admin') return;
+  try {
+    const rows = await sb.query('cw_leaves', { filter: { status: 'eq.pending' } });
+    const badge = document.getElementById('badge-leaves');
+    if (!badge) return;
+    if (rows.length > 0) { badge.textContent = rows.length; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+  } catch(e) {}
+}
+
+function updateSidebarUser() {
+  document.getElementById('sidebar-name').textContent = currentUser?.name || 'User';
+  document.getElementById('sidebar-role').textContent = currentUser?.role === 'admin' ? 'HR / Admin' : (currentUser?.designation || 'Staff');
+  const ava = document.getElementById('sidebar-ava');
+  if (currentUser?.photo_url) ava.innerHTML = `<img src="${currentUser.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+  else ava.innerHTML = currentUser?.role === 'admin' ? '🛡️' : (currentUser?.name?.[0] || '👤');
+}
+
+function navigateTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(`page-${id}`);
+  if (page) page.classList.add('active');
+  const navItem = document.getElementById(`nav-${id}`);
+  if (navItem) navItem.classList.add('active');
+  closeSidebar();
+  // Load data on navigate
+  if (id === 'staff') loadStaffTable();
+  if (id === 'attendance') loadAttendanceAdmin();
+  if (id === 'salary') loadSalaryPage();
+  if (id === 'branches') loadBranchesTable();
+  if (id === 'leaves') loadLeavesAdmin();
+  if (id === 'settings') loadSettings();
+  if (id === 'staff-home') loadStaffHome();
+  if (id === 'staff-history') loadStaffHistory();
+  if (id === 'staff-leave') loadStaffLeave();
+  if (id === 'staff-profile') loadStaffProfile();
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Sidebar mobile
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sidebar.classList.contains('open');
+  if (isOpen) closeSidebar();
+  else openSidebar();
+}
+
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════════════════════
+async function loadDashboard() {
+  const today = todayStr();
+  document.getElementById('dash-date').textContent = formatDate(today);
+  const statsEl = document.getElementById('dash-stats');
+  statsEl.innerHTML = '<div class="page-loader"><div class="big-loader"></div><p>Loading…</p></div>';
+  try {
+    const [staff, att, leaves] = await Promise.all([
+      sb.query('cw_staff'),
+      sb.query('cw_attendance', { filter: { date: `eq.${today}` } }),
+      sb.query('cw_leaves', { filter: { status: 'eq.pending' } })
+    ]);
+    allStaff = staff;
+    const present = att.filter(a => a.clock_in).map(a => a.staff_id);
+    const late = att.filter(a => a.is_late).length;
+    const absent = staff.length - present.length;
+    statsEl.innerHTML = `
+      <div class="stat-card blue"><div class="stat-icon">👥</div><div class="stat-num">${staff.length}</div><div class="stat-label">Total Staff</div></div>
+      <div class="stat-card teal"><div class="stat-icon">✅</div><div class="stat-num">${present.length}</div><div class="stat-label">Present Today</div></div>
+      <div class="stat-card warn"><div class="stat-icon">⏰</div><div class="stat-num">${late}</div><div class="stat-label">Late Today</div></div>
+      <div class="stat-card danger"><div class="stat-icon">❌</div><div class="stat-num">${absent < 0 ? 0 : absent}</div><div class="stat-label">Absent Today</div></div>
+      <div class="stat-card blue"><div class="stat-icon">🌴</div><div class="stat-num">${leaves.length}</div><div class="stat-label">Pending Leaves</div></div>
+    `;
+    // Today's attendance table
+    const tbody = document.getElementById('today-att-table');
+    if (!att.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="e-icon">📋</div><h4>No attendance today</h4><p>No clock-ins recorded yet</p></div></td></tr>`; return; }
+    tbody.innerHTML = att.map(a => {
+      const s = staff.find(x => x.id === a.staff_id) || {};
+      const b = allBranches.find(x => x.id === s.branch_id) || {};
+      const hrs = a.clock_in && a.clock_out ? calcHours(a.clock_in, a.clock_out) : '—';
+      return `<tr>
+        <td data-label="Staff"><div class="td-name">${avatarHtml(s)}<div><div>${s.name||'Unknown'}</div><div class="td-sub">${s.designation||''}</div></div></div></td>
+        <td data-label="Branch">${b.name||'—'}</td>
+        <td data-label="Clock In">${a.clock_in ? fmtTime(a.clock_in) : '—'}</td>
+        <td data-label="Clock Out">${a.clock_out ? fmtTime(a.clock_out) : '<span style="color:var(--text-light)">—</span>'}</td>
+        <td data-label="Hours"><strong>${hrs}</strong></td>
+        <td data-label="Status">${a.is_late ? '<span class="badge badge-red">⏰ Late</span>' : '<span class="badge badge-green">✅ On Time</span>'}</td>
+      </tr>`;
+    }).join('');
+    updateLeavesBadge();
+  } catch(e) { statsEl.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAFF MANAGEMENT
+// ════════════════════════════════════════════════════════════
+async function loadStaffTable() {
+  const tbody = document.getElementById('staff-table');
+  tbody.innerHTML = `<tr><td colspan="7"><div class="page-loader"><div class="big-loader"></div></div></td></tr>`;
+  try {
+    allStaff = await sb.query('cw_staff', { order: 'created_at.desc' });
+    allBranches = await sb.query('cw_branches');
+    renderStaffTable(allStaff);
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger)">Error: ${e.message}</td></tr>`; }
+}
+
+function renderStaffTable(staff) {
+  const tbody = document.getElementById('staff-table');
+  if (!staff.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="e-icon">👥</div><h4>No staff yet</h4><p>Add your first employee</p></div></td></tr>`; return; }
+  tbody.innerHTML = staff.map(s => {
+    // Support multi-branch
+    let branchNames = '—';
+    if (s.branch_ids) {
+      try {
+        const ids = JSON.parse(s.branch_ids);
+        const names = ids.map(id => allBranches.find(b => b.id === id)?.name).filter(Boolean);
+        branchNames = names.length ? names.map(n => `<span class="badge badge-blue" style="margin:1px">${n}</span>`).join('') : '<span class="badge badge-gray">Unassigned</span>';
+      } catch(e) { branchNames = '<span class="badge badge-gray">Unassigned</span>'; }
+    } else if (s.branch_id) {
+      const b = allBranches.find(x => x.id === s.branch_id);
+      branchNames = b ? `<span class="badge badge-blue">${b.name}</span>` : '<span class="badge badge-gray">Unassigned</span>';
+    } else {
+      branchNames = '<span class="badge badge-gray">Unassigned</span>';
+    }
+    return `<tr>
+      <td data-label="Staff"><div class="td-name">${avatarHtml(s)}<div><div style="font-weight:600">${s.name}</div><div class="td-sub">${s.designation||''}</div></div></div></td>
+      <td data-label="PIN"><code style="background:rgba(30,87,153,0.1);padding:3px 8px;border-radius:6px;font-size:12px">${s.pin}</code></td>
+      <td data-label="Branch" style="max-width:180px">${branchNames}</td>
+      <td data-label="Designation">${s.designation||'—'}</td>
+      <td data-label="Salary">${s.salary ? formatCurrency(s.salary) : '—'}</td>
+      <td data-label="Device">${s.device_id ? '<span class="badge badge-green">📱 Registered</span>' : '<span class="badge badge-gray">None</span>'}${s.allow_multi_device ? ' <span class="badge badge-blue" style="font-size:10px">Multi</span>' : ''}</td>
+      <td data-label="Actions" style="white-space:nowrap">
+        <button class="btn btn-glass btn-xs" onclick="openEditStaff('${s.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-xs" style="margin-left:4px" onclick="deleteStaff('${s.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterStaff() {
+  const q = document.getElementById('staff-search').value.toLowerCase();
+  const filtered = allStaff.filter(s => {
+    if (s.name?.toLowerCase().includes(q)) return true;
+    if (s.pin?.includes(q)) return true;
+    if (s.designation?.toLowerCase().includes(q)) return true;
+    // search multi-branch names
+    if (s.branch_ids) {
+      try {
+        const ids = JSON.parse(s.branch_ids);
+        return ids.some(id => allBranches.find(b => b.id === id)?.name?.toLowerCase().includes(q));
+      } catch(e) {}
+    }
+    if (s.branch_id) return allBranches.find(b => b.id === s.branch_id)?.name?.toLowerCase().includes(q);
+    return false;
+  });
+  renderStaffTable(filtered);
+}
+
+async function openAddStaff() {
+  editingStaffId = null; photoDataUrl = null;
+  document.getElementById('staff-modal-title').textContent = 'Add Staff';
+  ['s-name','s-pin','s-designation','s-salary'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('s-multi-device').value = 'false';
+  document.getElementById('photo-preview-img').style.display = 'none';
+  document.getElementById('photo-upload-area').classList.remove('has-img');
+  await populateBranchCheckboxes([]);
+  openModal('staff-modal');
+}
+
+async function openEditStaff(id) {
+  const s = allStaff.find(x => x.id === id);
+  if (!s) return;
+  editingStaffId = id; photoDataUrl = null;
+  document.getElementById('staff-modal-title').textContent = 'Edit Staff';
+  document.getElementById('s-name').value = s.name || '';
+  document.getElementById('s-pin').value = s.pin || '';
+  document.getElementById('s-designation').value = s.designation || '';
+  document.getElementById('s-salary').value = s.salary || '';
+  document.getElementById('s-multi-device').value = s.allow_multi_device ? 'true' : 'false';
+  if (s.photo_url) {
+    const img = document.getElementById('photo-preview-img');
+    img.src = s.photo_url; img.style.display = 'block';
+    document.getElementById('photo-upload-area').classList.add('has-img');
+  } else {
+    document.getElementById('photo-preview-img').style.display = 'none';
+    document.getElementById('photo-upload-area').classList.remove('has-img');
+  }
+  // Parse stored branch_ids (support legacy single branch_id too)
+  let selectedIds = [];
+  if (s.branch_ids) {
+    try { selectedIds = JSON.parse(s.branch_ids); } catch(e) { selectedIds = []; }
+  } else if (s.branch_id) {
+    selectedIds = [s.branch_id];
+  }
+  await populateBranchCheckboxes(selectedIds);
+  openModal('staff-modal');
+}
+
+async function populateBranchCheckboxes(selectedIds = []) {
+  const container = document.getElementById('s-branches-list');
+  if (!allBranches.length) allBranches = await sb.query('cw_branches');
+  if (!allBranches.length) {
+    container.innerHTML = '<div style="color:var(--text-light);font-size:12px;grid-column:1/-1">No branches created yet</div>';
+    return;
+  }
+  container.innerHTML = allBranches.map(b => `
+    <div class="branch-check-item${selectedIds.includes(b.id) ? ' selected' : ''}" 
+         id="bcheck-${b.id}" onclick="toggleBranchCheck('${b.id}')">
+      <div class="branch-check-tick">${selectedIds.includes(b.id) ? '✓' : ''}</div>
+      <span>${b.name}</span>
+    </div>
+  `).join('');
+}
+
+function toggleBranchCheck(branchId) {
+  const el = document.getElementById(`bcheck-${branchId}`);
+  el.classList.toggle('selected');
+  const tick = el.querySelector('.branch-check-tick');
+  tick.textContent = el.classList.contains('selected') ? '✓' : '';
+}
+
+function getSelectedBranchIds() {
+  return allBranches
+    .filter(b => document.getElementById(`bcheck-${b.id}`)?.classList.contains('selected'))
+    .map(b => b.id);
+}
+
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoDataUrl = ev.target.result;
+    const img = document.getElementById('photo-preview-img');
+    img.src = photoDataUrl; img.style.display = 'block';
+    document.getElementById('photo-upload-area').classList.add('has-img');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveStaff() {
+  const name = document.getElementById('s-name').value.trim();
+  const pin = document.getElementById('s-pin').value.trim();
+  const designation = document.getElementById('s-designation').value.trim();
+  const salary = parseFloat(document.getElementById('s-salary').value) || 0;
+  const allow_multi_device = document.getElementById('s-multi-device').value === 'true';
+  const branchIds = getSelectedBranchIds();
+  const branch_id = branchIds[0] || null; // primary branch (first selected)
+  const branch_ids = JSON.stringify(branchIds);
+
+  if (!name) { toast('Name is required', 'error'); return; }
+  if (!/^\d{4,6}$/.test(pin)) { toast('PIN must be 4–6 digits', 'error'); return; }
+  const existing = allStaff.find(s => s.pin === pin && s.id !== editingStaffId);
+  if (existing) { toast('PIN already in use by another staff member', 'error'); return; }
+
+  const btn = document.querySelector('#staff-modal .modal-footer .btn-blue');
+  btn.innerHTML = '<div class="loader"></div>'; btn.disabled = true;
+  try {
+    let photo_url = editingStaffId ? (allStaff.find(s => s.id === editingStaffId)?.photo_url || null) : null;
+    if (photoDataUrl) {
+      const blob = await (await fetch(photoDataUrl)).blob();
+      const ext = blob.type.split('/')[1] || 'jpg';
+      const path = `staff/${Date.now()}.${ext}`;
+      try { photo_url = await sb.storage.upload('staff-photos', path, blob); } catch(e) {}
+    }
+    const data = { name, pin, designation, branch_id, branch_ids, salary, allow_multi_device, photo_url };
+    if (editingStaffId) await sb.update('cw_staff', data, { id: `eq.${editingStaffId}` });
+    else await sb.insert('cw_staff', data);
+    closeModal('staff-modal');
+    toast(editingStaffId ? 'Staff updated ✅' : 'Staff added ✅', 'success');
+    loadStaffTable();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  btn.innerHTML = 'Save Staff'; btn.disabled = false;
+}
+
+async function deleteStaff(id) {
+  const s = allStaff.find(x => x.id === id);
+  showConfirm('Remove Staff', `Remove "${s?.name}"? This will also delete their attendance records.`, '⚠️', async () => {
+    try {
+      await sb.delete('cw_attendance', { staff_id: `eq.${id}` });
+      await sb.delete('cw_leaves', { staff_id: `eq.${id}` });
+      await sb.delete('cw_staff', { id: `eq.${id}` });
+      toast('Staff removed', 'success'); loadStaffTable();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  BRANCHES
+// ════════════════════════════════════════════════════════════
+async function loadBranchesTable() {
+  const tbody = document.getElementById('branches-table');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="page-loader"><div class="big-loader"></div></div></td></tr>`;
+  try {
+    allBranches = await sb.query('cw_branches', { order: 'created_at.desc' });
+    allStaff = allStaff.length ? allStaff : await sb.query('cw_staff');
+    if (!allBranches.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="e-icon">🏢</div><h4>No branches yet</h4><p>Add your first branch location</p></div></td></tr>`; return; }
+    tbody.innerHTML = allBranches.map(b => {
+      const staffCount = allStaff.filter(s => s.branch_id === b.id).length;
+      return `<tr>
+        <td data-label="Branch Name"><strong>${b.name}</strong></td>
+        <td data-label="Latitude">${parseFloat(b.latitude).toFixed(6)}</td>
+        <td data-label="Longitude">${parseFloat(b.longitude).toFixed(6)}</td>
+        <td data-label="Radius"><span class="badge badge-blue">${b.radius}m</span></td>
+        <td data-label="Staff">${staffCount} staff</td>
+        <td data-label="Actions">
+          <button class="btn btn-glass btn-xs" onclick="openEditBranch('${b.id}')">✏️ Edit</button>
+          <button class="btn btn-danger btn-xs" style="margin-left:4px" onclick="deleteBranch('${b.id}')">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger)">Error: ${e.message}</td></tr>`; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  BRANCH MAP (Leaflet)
+// ════════════════════════════════════════════════════════════
+let branchMap = null;
+let branchMarker = null;
+let branchCircle = null;
+const DEFAULT_LAT = 24.4539, DEFAULT_LNG = 54.3773; // Abu Dhabi default
+
+function initBranchMap(lat, lng, radius) {
+  const mapEl = document.getElementById('branch-map');
+  if (!mapEl) return;
+
+  // Destroy old instance if exists
+  if (branchMap) {
+    branchMap.remove();
+    branchMap = null; branchMarker = null; branchCircle = null;
+  }
+
+  const centerLat = lat || DEFAULT_LAT;
+  const centerLng = lng || DEFAULT_LNG;
+  const r = radius || 100;
+
+  branchMap = L.map('branch-map', { zoomControl: true, attributionControl: false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OSM'
+  }).addTo(branchMap);
+
+  // Custom marker icon
+  const icon = L.divIcon({
+    html: `<div style="width:32px;height:32px;background:linear-gradient(135deg,#00C9C8,#1E5799);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,0.3)"></div>`,
+    iconSize: [32, 32], iconAnchor: [16, 32], className: ''
+  });
+
+  if (lat && lng) {
+    branchMap.setView([lat, lng], 16);
+    branchMarker = L.marker([lat, lng], { icon, draggable: true }).addTo(branchMap);
+    branchCircle = L.circle([lat, lng], {
+      radius: r, color: '#00C9C8', fillColor: '#00C9C8',
+      fillOpacity: 0.12, weight: 2, dashArray: '6,4'
+    }).addTo(branchMap);
+    branchMarker.on('dragend', () => {
+      const pos = branchMarker.getLatLng();
+      document.getElementById('b-lat').value = pos.lat.toFixed(6);
+      document.getElementById('b-lng').value = pos.lng.toFixed(6);
+      branchCircle.setLatLng(pos);
+    });
+  } else {
+    branchMap.setView([centerLat, centerLng], 13);
+  }
+
+  // Click to set pin
+  branchMap.on('click', (e) => {
+    const { lat: clickLat, lng: clickLng } = e.latlng;
+    document.getElementById('b-lat').value = clickLat.toFixed(6);
+    document.getElementById('b-lng').value = clickLng.toFixed(6);
+    const radius = parseInt(document.getElementById('b-radius').value) || 100;
+    placeMapPin(clickLat, clickLng, radius);
+  });
+
+  // Force resize after modal animation
+  setTimeout(() => branchMap && branchMap.invalidateSize(), 350);
+}
+
+function placeMapPin(lat, lng, radius) {
+  if (!branchMap) return;
+  const icon = L.divIcon({
+    html: `<div style="width:32px;height:32px;background:linear-gradient(135deg,#00C9C8,#1E5799);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,0.3)"></div>`,
+    iconSize: [32, 32], iconAnchor: [16, 32], className: ''
+  });
+  if (branchMarker) { branchMap.removeLayer(branchMarker); branchMarker = null; }
+  if (branchCircle) { branchMap.removeLayer(branchCircle); branchCircle = null; }
+  branchMarker = L.marker([lat, lng], { icon, draggable: true }).addTo(branchMap);
+  branchCircle = L.circle([lat, lng], {
+    radius, color: '#00C9C8', fillColor: '#00C9C8',
+    fillOpacity: 0.12, weight: 2, dashArray: '6,4'
+  }).addTo(branchMap);
+  branchMarker.on('dragend', () => {
+    const pos = branchMarker.getLatLng();
+    document.getElementById('b-lat').value = pos.lat.toFixed(6);
+    document.getElementById('b-lng').value = pos.lng.toFixed(6);
+    branchCircle.setLatLng(pos);
+  });
+  branchMap.setView([lat, lng], Math.max(branchMap.getZoom(), 15));
+}
+
+function syncMapFromInputs() {
+  const lat = parseFloat(document.getElementById('b-lat').value);
+  const lng = parseFloat(document.getElementById('b-lng').value);
+  const radius = parseInt(document.getElementById('b-radius').value) || 100;
+  if (branchCircle && !isNaN(lat) && !isNaN(lng)) {
+    branchCircle.setRadius(radius);
+  }
+  if (!isNaN(lat) && !isNaN(lng)) {
+    placeMapPin(lat, lng, radius);
+  }
+}
+
+function openAddBranch() {
+  editingBranchId = null;
+  document.getElementById('branch-modal-title').textContent = 'Add Branch';
+  ['b-name','b-lat','b-lng'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('b-radius').value = '100';
+  document.getElementById('loc-status').textContent = '';
+  openModal('branch-modal');
+  setTimeout(() => initBranchMap(null, null, 100), 100);
+}
+
+async function openEditBranch(id) {
+  const b = allBranches.find(x => x.id === id);
+  if (!b) return;
+  editingBranchId = id;
+  document.getElementById('branch-modal-title').textContent = 'Edit Branch';
+  document.getElementById('b-name').value = b.name;
+  document.getElementById('b-lat').value = b.latitude;
+  document.getElementById('b-lng').value = b.longitude;
+  document.getElementById('b-radius').value = b.radius;
+  document.getElementById('loc-status').textContent = '';
+  openModal('branch-modal');
+  setTimeout(() => initBranchMap(parseFloat(b.latitude), parseFloat(b.longitude), parseInt(b.radius)), 100);
+}
+
+function useMyLocation() {
+  const st = document.getElementById('loc-status');
+  st.textContent = '⏳ Getting location…';
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    document.getElementById('b-lat').value = lat.toFixed(6);
+    document.getElementById('b-lng').value = lng.toFixed(6);
+    const radius = parseInt(document.getElementById('b-radius').value) || 100;
+    placeMapPin(lat, lng, radius);
+    st.innerHTML = '✅ Location set!';
+  }, err => { st.textContent = '❌ ' + err.message; });
+}
+
+async function saveBranch() {
+  const name = document.getElementById('b-name').value.trim();
+  const latitude = parseFloat(document.getElementById('b-lat').value);
+  const longitude = parseFloat(document.getElementById('b-lng').value);
+  const radius = parseInt(document.getElementById('b-radius').value);
+  if (!name) { toast('Branch name required', 'error'); return; }
+  if (isNaN(latitude) || isNaN(longitude)) { toast('Pin a location on the map or enter coordinates', 'error'); return; }
+  if (!radius || radius < 10) { toast('Radius must be at least 10m', 'error'); return; }
+  try {
+    const data = { name, latitude, longitude, radius };
+    if (editingBranchId) await sb.update('cw_branches', data, { id: `eq.${editingBranchId}` });
+    else await sb.insert('cw_branches', data);
+    closeModal('branch-modal');
+    toast(editingBranchId ? 'Branch updated ✅' : 'Branch added ✅', 'success');
+    loadBranchesTable();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteBranch(id) {
+  const b = allBranches.find(x => x.id === id);
+  showConfirm('Delete Branch', `Delete "${b?.name}"? Staff assigned here will be unassigned.`, '⚠️', async () => {
+    try {
+      await sb.update('cw_staff', { branch_id: null }, { branch_id: `eq.${id}` });
+      await sb.delete('cw_branches', { id: `eq.${id}` });
+      toast('Branch deleted', 'success'); loadBranchesTable();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  ATTENDANCE (ADMIN)
+// ════════════════════════════════════════════════════════════
+async function loadAttendanceAdmin() {
+  const tbody = document.getElementById('admin-att-table');
+  const dateFilter = document.getElementById('att-filter-date').value;
+  const searchQ = document.getElementById('att-search').value.toLowerCase();
+  tbody.innerHTML = `<tr><td colspan="7"><div class="page-loader"><div class="big-loader"></div></div></td></tr>`;
+  try {
+    if (!allStaff.length) allStaff = await sb.query('cw_staff');
+    if (!allBranches.length) allBranches = await sb.query('cw_branches');
+    const filter = {};
+    if (dateFilter) filter.date = `eq.${dateFilter}`;
+    let att = await sb.query('cw_attendance', { filter, order: 'date.desc,clock_in.desc' });
+    if (searchQ) att = att.filter(a => {
+      const s = allStaff.find(x => x.id === a.staff_id);
+      return s?.name?.toLowerCase().includes(searchQ);
+    });
+    if (!att.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="e-icon">📋</div><h4>No records found</h4></div></td></tr>`; return; }
+    tbody.innerHTML = att.map(a => {
+      const s = allStaff.find(x => x.id === a.staff_id) || {};
+      const b = allBranches.find(x => x.id === s.branch_id) || {};
+      const hrs = a.clock_in && a.clock_out ? calcHours(a.clock_in, a.clock_out) : '—';
+      return `<tr>
+        <td data-label="Staff"><div class="td-name">${avatarHtml(s)}<div>${s.name||'?'}</div></div></td>
+        <td data-label="Date">${formatDate(a.date)}</td>
+        <td data-label="Branch">${b.name||'—'}</td>
+        <td data-label="Clock In">${a.clock_in ? fmtTime(a.clock_in) : '—'}</td>
+        <td data-label="Clock Out">${a.clock_out ? fmtTime(a.clock_out) : '—'}</td>
+        <td data-label="Hours"><strong>${hrs}</strong></td>
+        <td data-label="Status">${a.is_late ? '<span class="badge badge-red">Late</span>' : '<span class="badge badge-green">On Time</span>'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger)">Error: ${e.message}</td></tr>`; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  LEAVES (ADMIN)
+// ════════════════════════════════════════════════════════════
+async function loadLeavesAdmin() {
+  const tbody = document.getElementById('leaves-table');
+  const statusFilter = document.getElementById('leave-filter').value;
+  tbody.innerHTML = `<tr><td colspan="8"><div class="page-loader"><div class="big-loader"></div></div></td></tr>`;
+  try {
+    if (!allStaff.length) allStaff = await sb.query('cw_staff');
+    const filter = {};
+    if (statusFilter) filter.status = `eq.${statusFilter}`;
+    const leaves = await sb.query('cw_leaves', { filter, order: 'created_at.desc' });
+    if (!leaves.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">🌴</div><h4>No leave requests</h4></div></td></tr>`; return; }
+    tbody.innerHTML = leaves.map(l => {
+      const s = allStaff.find(x => x.id === l.staff_id) || {};
+      const typeInfo = leaveTypeInfo(l.leave_type);
+      const statusBadge = l.status === 'approved' ? '<span class="badge badge-green">✅ Approved</span>'
+        : l.status === 'rejected' ? '<span class="badge badge-red">❌ Rejected</span>'
+        : '<span class="badge badge-yellow">⏳ Pending</span>';
+      const attachCell = l.attachment_url
+        ? `<button class="btn btn-glass btn-xs" onclick="viewAttachment('${l.attachment_url}','${(l.attachment_name||'file').replace(/'/g,"\\'")}')">
+             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+             ${l.attachment_name ? l.attachment_name.substring(0,14)+'…' : 'View'}
+           </button>`
+        : '<span style="color:var(--text-light);font-size:12px">—</span>';
+      const actions = l.status === 'pending' ? `
+        <button class="btn btn-teal btn-xs" onclick="updateLeave('${l.id}','approved')">✅ Approve</button>
+        <button class="btn btn-danger btn-xs" style="margin-top:4px" onclick="updateLeave('${l.id}','rejected')">❌ Reject</button>
+      ` : `<button class="btn btn-glass btn-xs" onclick="updateLeave('${l.id}','pending')">↩ Reset</button>`;
+      return `<tr>
+        <td data-label="Staff"><div class="td-name">${avatarHtml(s)}<div>${s.name||'?'}</div></div></td>
+        <td data-label="Type"><span class="badge" style="background:${typeInfo.bg};color:${typeInfo.color}">${typeInfo.icon} ${typeInfo.label}</span></td>
+        <td data-label="Start">${formatDate(l.start_date)}</td>
+        <td data-label="End">${formatDate(l.end_date)}</td>
+        <td data-label="Reason" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.reason}">${l.reason||'—'}</td>
+        <td data-label="Attachment">${attachCell}</td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Actions" style="white-space:nowrap">${actions}</td>
+      </tr>`;
+    }).join('');
+    updateLeavesBadge();
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="color:var(--danger)">Error: ${e.message}</td></tr>`; }
+}
+
+async function updateLeave(id, status) {
+  try {
+    await sb.update('cw_leaves', { status }, { id: `eq.${id}` });
+    toast(`Leave ${status} ✅`, 'success');
+    loadLeavesAdmin();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function viewAttachment(url, name) {
+  const ext = (name || url).split('.').pop().toLowerCase();
+  const isImage = ['jpg','jpeg','png','gif','webp','bmp'].includes(ext);
+  const isPdf   = ext === 'pdf';
+  document.getElementById('attach-modal-title').textContent = `📎 ${name || 'Attachment'}`;
+  const body = document.getElementById('attach-modal-body');
+  const dlBtn = document.getElementById('attach-download-btn');
+  dlBtn.href = url;
+  dlBtn.download = name || 'attachment';
+
+  if (isImage) {
+    body.innerHTML = `<img src="${url}" class="attach-preview-img" alt="${name}" onerror="this.src='';this.parentNode.innerHTML='<p style=color:var(--danger)>Could not load image</p>'">`;
+  } else if (isPdf) {
+    body.innerHTML = `<iframe src="${url}" style="width:100%;height:60vh;border:none;border-radius:10px"></iframe>`;
+  } else {
+    const icons = { doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', txt:'📃', csv:'📊', zip:'🗜️', ppt:'📑', pptx:'📑' };
+    const icon = icons[ext] || '📄';
+    body.innerHTML = `
+      <div class="attach-preview-doc">
+        <div style="font-size:52px;margin-bottom:12px">${icon}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px">${name || 'Document'}</div>
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:16px">${ext.toUpperCase()} file — click Download to save</div>
+        <a href="${url}" download="${name}" target="_blank" class="btn btn-blue">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download File
+        </a>
+      </div>`;
+  }
+  openModal('attachment-modal');
+}
+
+// ════════════════════════════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════════════════════════════
+async function loadSettings() {
+  // device list
+  try {
+    const staff = await sb.query('cw_staff', { filter: { device_id: 'not.is.null' } });
+    const el = document.getElementById('device-list');
+    if (!staff.length) { el.innerHTML = '<p style="color:var(--text-light);font-size:13px">No registered devices</p>'; return; }
+    el.innerHTML = staff.map(s => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(26,58,110,0.07)">
+        <div style="display:flex;align-items:center;gap:10px">${avatarHtml(s)}<div><div style="font-weight:600;font-size:13px">${s.name}</div><div style="color:var(--text-light);font-size:11px">📱 ${s.device_id?.substr(0,20)}…</div></div></div>
+        <button class="btn btn-danger btn-xs" onclick="unregisterDevice('${s.id}')">Unregister</button>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+async function unregisterDevice(id) {
+  const s = allStaff.find(x => x.id === id) || {};
+  showConfirm('Unregister Device', `Unregister device for "${s.name}"? They can log in from a new device.`, '📱', async () => {
+    try {
+      await sb.update('cw_staff', { device_id: null }, { id: `eq.${id}` });
+      toast('Device unregistered ✅', 'success'); loadSettings();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }, 'Unregister', false);
+}
+
+async function changeAdminPassword() {
+  const cur = document.getElementById('cur-pass').value;
+  const n1 = document.getElementById('new-pass').value;
+  const n2 = document.getElementById('new-pass2').value;
+  if (!cur || !n1) { toast('Fill in all fields', 'error'); return; }
+  if (n1 !== n2) { toast('New passwords do not match', 'error'); return; }
+  if (n1.length < 4) { toast('Password too short', 'error'); return; }
+  const current = await getSetting('admin_password');
+  if (cur !== current) { toast('Current password incorrect', 'error'); return; }
+  await upsertSetting('admin_password', n1);
+  toast('Password updated ✅', 'success');
+  ['cur-pass','new-pass','new-pass2'].forEach(id => document.getElementById(id).value = '');
+}
+
+async function changeAdminPin() {
+  const p1 = document.getElementById('new-pin').value;
+  const p2 = document.getElementById('new-pin2').value;
+  if (!/^\d{4,6}$/.test(p1)) { toast('PIN must be 4–6 digits', 'error'); return; }
+  if (p1 !== p2) { toast('PINs do not match', 'error'); return; }
+  await upsertSetting('admin_pin', p1);
+  toast('PIN updated ✅', 'success');
+  ['new-pin','new-pin2'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAFF HOME / CLOCK IN/OUT
+// ════════════════════════════════════════════════════════════
+function getStaffBranches(staffMember) {
+  if (!staffMember) return [];
+  if (staffMember.branch_ids) {
+    try {
+      const ids = JSON.parse(staffMember.branch_ids);
+      return ids.map(id => allBranches.find(b => b.id === id)).filter(Boolean);
+    } catch(e) {}
+  }
+  if (staffMember.branch_id) {
+    const b = allBranches.find(x => x.id === staffMember.branch_id);
+    return b ? [b] : [];
+  }
+  return [];
+}
+
+async function loadStaffHome() {
+  const el = document.getElementById('staff-home-content');
+  el.innerHTML = `<div class="page-loader"><div class="big-loader"></div><p>Loading…</p></div>`;
+  try {
+    const today = todayStr();
+    const [attRows, branches] = await Promise.all([
+      sb.query('cw_attendance', { filter: { staff_id: `eq.${currentUser.id}`, date: `eq.${today}` } }),
+      sb.query('cw_branches')
+    ]);
+    allBranches = branches;
+    const att = attRows[0] || null;
+    const staffBranches = getStaffBranches(currentUser);
+    const branchDisplay = staffBranches.length
+      ? staffBranches.map(b => b.name).join(', ')
+      : 'No branch assigned';
+    const now = new Date();
+    el.innerHTML = `
+      <div class="staff-top">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="staff-time" id="live-time">${fmtLiveTime(now)}</div>
+            <div class="staff-date">${formatDateFull(now)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;opacity:.5;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Branch</div>
+            <div style="font-size:13px;font-weight:600;opacity:.9">${branchDisplay}</div>
+          </div>
+        </div>
+        <div class="staff-status">
+          ${att?.clock_in ? `<span class="badge badge-green">✅ In at ${fmtTime(att.clock_in)}</span>` : '<span class="badge badge-gray" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6)">⬜ Not clocked in</span>'}
+          ${att?.is_late ? '<span class="badge badge-red">⏰ Late</span>' : ''}
+          ${att?.clock_out ? `<span class="badge badge-blue" style="background:rgba(58,175,218,0.25);color:#7DD4F0">🏁 Out ${fmtTime(att.clock_out)}</span>` : ''}
+          ${att?.clock_in && att?.clock_out ? `<span class="badge" style="background:rgba(0,201,200,0.2);color:#00E5D4">⏱️ ${calcHours(att.clock_in, att.clock_out)}</span>` : ''}
+        </div>
+        <div class="clock-btns">
+          <button class="clock-in-btn" id="btn-clock-in" onclick="clockIn()" ${att?.clock_in ? 'disabled' : ''}>
+            ${att?.clock_in ? '✅ Clocked In' : '🟢 Clock In'}
+          </button>
+          <button class="clock-out-btn" id="btn-clock-out" onclick="clockOut()" ${!att?.clock_in || att?.clock_out ? 'disabled' : ''}>
+            ${att?.clock_out ? '🏁 Done' : '🔴 Clock Out'}
+          </button>
+        </div>
+      </div>
+      <div class="staff-profile-card">
+        <div class="profile-big-ava">${currentUser.photo_url ? `<img src="${currentUser.photo_url}">` : (currentUser.name?.[0]||'?')}</div>
+        <div class="profile-details">
+          <div class="p-name">${currentUser.name}</div>
+          <div class="p-desig">${currentUser.designation||'Staff'}</div>
+          <div class="p-branch">📍 ${branchDisplay}</div>
+          <div class="info-pills">
+            <span class="info-pill">💰 ${currentUser.salary ? formatCurrency(currentUser.salary) : 'N/A'}</span>
+            <span class="info-pill">📱 ${currentUser.device_id ? 'Device Registered' : 'No device'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    // Live clock — clear old interval first
+    if (window._clockInterval) clearInterval(window._clockInterval);
+    window._clockInterval = setInterval(() => {
+      const t = document.getElementById('live-time');
+      if (t) t.textContent = fmtLiveTime(new Date());
+      else clearInterval(window._clockInterval);
+    }, 1000);
+  } catch(e) { el.innerHTML = `<p style="color:var(--danger);padding:20px">Error: ${e.message}</p>`; }
+}
+
+async function clockIn() {
+  const btn = document.getElementById('btn-clock-in');
+  btn.innerHTML = '<div class="loader"></div>'; btn.disabled = true;
+  try {
+    const staffBranches = getStaffBranches(currentUser);
+    if (staffBranches.length > 0) {
+      let pos;
+      try { pos = await getPosition(); }
+      catch(e) { toast('Location access denied. Please enable GPS to clock in.', 'error'); btn.innerHTML = '🟢 Clock In'; btn.disabled = false; return; }
+      // Check if within ANY assigned branch radius
+      let closestDist = Infinity, closestBranch = null;
+      for (const branch of staffBranches) {
+        const dist = haversine(pos.lat, pos.lng, parseFloat(branch.latitude), parseFloat(branch.longitude));
+        if (dist < closestDist) { closestDist = dist; closestBranch = branch; }
+        if (dist <= branch.radius) { closestDist = 0; closestBranch = branch; break; }
+      }
+      if (closestDist > 0) {
+        toast(`Outside branch range! Closest: ${closestBranch?.name} (${Math.round(closestDist)}m away, max ${closestBranch?.radius}m)`, 'error');
+        btn.innerHTML = '🟢 Clock In'; btn.disabled = false; return;
+      }
+    } else {
+      toast('⚠️ No branch assigned — clocking in anyway', 'warn');
+    }
+    const now = new Date();
+    const isLate = now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() > 0);
+    await sb.insert('cw_attendance', {
+      staff_id: currentUser.id, date: todayStr(),
+      clock_in: now.toISOString(), is_late: isLate
+    });
+    toast('Clocked in! ✅', 'success');
+    loadStaffHome();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.innerHTML = '🟢 Clock In'; btn.disabled = false; }
+}
+
+async function clockOut() {
+  const btn = document.getElementById('btn-clock-out');
+  btn.innerHTML = '<div class="loader"></div>'; btn.disabled = true;
+  try {
+    const rows = await sb.query('cw_attendance', {
+      filter: { staff_id: `eq.${currentUser.id}`, date: `eq.${todayStr()}` }
+    });
+    if (!rows.length) { toast('No clock-in record found', 'error'); btn.innerHTML = '🔴 Clock Out'; btn.disabled = false; return; }
+    await sb.update('cw_attendance', { clock_out: new Date().toISOString() }, { id: `eq.${rows[0].id}` });
+    toast('Clocked out! Have a great day 🌙', 'success');
+    loadStaffHome();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.innerHTML = '🔴 Clock Out'; btn.disabled = false; }
+}
+
+function getPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      err => reject(new Error('Location denied: ' + err.message))
+    );
+  });
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAFF HISTORY
+// ════════════════════════════════════════════════════════════
+async function loadStaffHistory() {
+  const el = document.getElementById('staff-att-list');
+  el.innerHTML = `<div class="page-loader"><div class="big-loader"></div></div>`;
+  try {
+    const att = await sb.query('cw_attendance', {
+      filter: { staff_id: `eq.${currentUser.id}` }, order: 'date.desc', limit: 60
+    });
+    if (!att.length) { el.innerHTML = `<div class="empty-state"><div class="e-icon">📋</div><h4>No records yet</h4><p>Your attendance history will appear here</p></div>`; return; }
+    el.innerHTML = att.map(a => `
+      <div class="att-row">
+        <div>
+          <div class="att-date">${formatDate(a.date)}</div>
+          <div class="att-times">In: ${a.clock_in ? fmtTime(a.clock_in) : '—'} · Out: ${a.clock_out ? fmtTime(a.clock_out) : '—'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${a.is_late ? '<span class="badge badge-red">Late</span>' : '<span class="badge badge-green">On Time</span>'}
+          <div class="att-hours">${a.clock_in && a.clock_out ? calcHours(a.clock_in, a.clock_out) : '—'}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAFF LEAVE
+// ════════════════════════════════════════════════════════════
+async function loadStaffLeave() {
+  const tbody = document.getElementById('staff-leave-table');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="page-loader"><div class="big-loader"></div></div></td></tr>`;
+  try {
+    const leaves = await sb.query('cw_leaves', { filter: { staff_id: `eq.${currentUser.id}` }, order: 'created_at.desc' });
+    if (!leaves.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="e-icon">🌴</div><h4>No leave requests</h4></div></td></tr>`; return; }
+    tbody.innerHTML = leaves.map(l => {
+      const typeInfo = leaveTypeInfo(l.leave_type);
+      const attachCell = l.attachment_url
+        ? `<button class="btn btn-glass btn-xs" onclick="viewAttachment('${l.attachment_url}','${(l.attachment_name||'file').replace(/'/g,"\\'")}')">📎 View</button>`
+        : '<span style="color:var(--text-light);font-size:12px">—</span>';
+      return `<tr>
+        <td data-label="Type"><span class="badge" style="background:${typeInfo.bg};color:${typeInfo.color}">${typeInfo.icon} ${typeInfo.label}</span></td>
+        <td data-label="Start">${formatDate(l.start_date)}</td>
+        <td data-label="End">${formatDate(l.end_date)}</td>
+        <td data-label="Reason" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.reason||'—'}</td>
+        <td data-label="Attachment">${attachCell}</td>
+        <td data-label="Status">${l.status === 'approved' ? '<span class="badge badge-green">✅ Approved</span>'
+          : l.status === 'rejected' ? '<span class="badge badge-red">❌ Rejected</span>'
+          : '<span class="badge badge-yellow">⏳ Pending</span>'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger)">Error: ${e.message}</td></tr>`; }
+}
+
+// ── LEAVE TYPE HELPERS ──
+let currentLeaveType = 'vacation';
+function leaveTypeInfo(type) {
+  const types = {
+    vacation:  { icon:'🌴', label:'Vacation',  bg:'rgba(0,201,200,0.12)',   color:'#007A78' },
+    sick:      { icon:'🤒', label:'Sick Leave', bg:'rgba(245,166,35,0.14)',  color:'#A06000' },
+    emergency: { icon:'🚨', label:'Emergency',  bg:'rgba(231,76,111,0.13)',  color:'#C0204A' },
+    other:     { icon:'📌', label:'Other',      bg:'rgba(90,123,171,0.12)', color:'#3A5A8A' },
+  };
+  return types[type] || types.other;
+}
+function setLeaveType(type) {
+  currentLeaveType = type;
+  document.querySelectorAll('.leave-type-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`ltype-${type}`)?.classList.add('active');
+}
+
+// ── FILE HANDLING ──
+let leaveFileData = null;
+function handleLeaveFileSelect(e) { processLeaveFile(e.target.files[0]); }
+function handleLeaveFileDrop(e) {
+  e.preventDefault();
+  document.getElementById('leave-file-drop').classList.remove('drag-over');
+  processLeaveFile(e.dataTransfer.files[0]);
+}
+function processLeaveFile(file) {
+  if (!file) return;
+  const maxMB = 10;
+  if (file.size > maxMB * 1024 * 1024) { toast(`File too large (max ${maxMB}MB)`, 'error'); return; }
+  leaveFileData = file;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const icons = { jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🖼️', pdf:'📄', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', txt:'📃', csv:'📊' };
+  const icon = icons[ext] || '📎';
+  const sizeStr = file.size > 1024*1024 ? `${(file.size/1024/1024).toFixed(1)} MB` : `${Math.round(file.size/1024)} KB`;
+  document.getElementById('leave-file-placeholder').style.display = 'none';
+  document.getElementById('leave-file-selected').style.display = 'flex';
+  document.getElementById('leave-file-icon').textContent = icon;
+  document.getElementById('leave-file-name').textContent = file.name;
+  document.getElementById('leave-file-size').textContent = `${ext.toUpperCase()} · ${sizeStr}`;
+  document.getElementById('leave-file-drop').classList.add('has-file');
+}
+function clearLeaveFile() {
+  leaveFileData = null;
+  document.getElementById('leave-file-input').value = '';
+  document.getElementById('leave-file-placeholder').style.display = '';
+  document.getElementById('leave-file-selected').style.display = 'none';
+  document.getElementById('leave-file-drop').classList.remove('has-file');
+}
+
+async function submitLeave() {
+  const start  = document.getElementById('leave-start').value;
+  const end    = document.getElementById('leave-end').value;
+  const reason = document.getElementById('leave-reason').value.trim();
+  if (!start || !end) { toast('Please fill in start and end date', 'error'); return; }
+  if (new Date(end) < new Date(start)) { toast('End date must be after start date', 'error'); return; }
+  if (!reason) { toast('Please provide a reason', 'error'); return; }
+
+  const btn = document.getElementById('leave-submit-btn');
+  btn.innerHTML = '<div class="loader" style="border-top-color:#fff"></div> Submitting…';
+  btn.disabled = true;
+
+  try {
+    let attachment_url = null, attachment_name = null;
+
+    // Upload file if selected
+    if (leaveFileData) {
+      const ext  = leaveFileData.name.split('.').pop();
+      const path = `leaves/${currentUser.id}_${Date.now()}.${ext}`;
+      try {
+        attachment_url  = await sb.storage.upload('leave-attachments', path, leaveFileData);
+        attachment_name = leaveFileData.name;
+      } catch(e) {
+        toast('File upload failed — submitting without attachment', 'warn');
+      }
+    }
+
+    await sb.insert('cw_leaves', {
+      staff_id: currentUser.id,
+      start_date: start, end_date: end,
+      reason, status: 'pending',
+      leave_type: currentLeaveType,
+      attachment_url, attachment_name
+    });
+
+    toast('Leave request submitted ✅', 'success');
+    document.getElementById('leave-start').value  = '';
+    document.getElementById('leave-end').value    = '';
+    document.getElementById('leave-reason').value = '';
+    clearLeaveFile();
+    setLeaveType('vacation');
+    loadStaffLeave();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    btn.innerHTML = 'Submit Request';
+    btn.disabled  = false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAFF PROFILE
+// ════════════════════════════════════════════════════════════
+async function loadStaffProfile() {
+  const el = document.getElementById('staff-profile-content');
+  el.innerHTML = `<div class="page-loader"><div class="big-loader"></div></div>`;
+  if (!allBranches.length) allBranches = await sb.query('cw_branches');
+  const s = currentUser;
+  const staffBranches = getStaffBranches(s);
+  const branchDisplay = staffBranches.length
+    ? staffBranches.map(b => `<span class="badge badge-blue" style="margin:2px">${b.name}</span>`).join('')
+    : '<span style="color:var(--text-light)">Not assigned</span>';
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:500px">
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:24px">
+          <div class="profile-big-ava" style="width:100px;height:100px;font-size:36px">
+            ${s.photo_url ? `<img src="${s.photo_url}">` : (s.name?.[0]||'?')}
+          </div>
+          <div style="text-align:center">
+            <div class="p-name" style="font-size:24px">${s.name}</div>
+            <div class="p-desig">${s.designation||'Staff'}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-top:16px">
+          ${profileRow('🏢', 'Branch(es)', `<span style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end">${branchDisplay}</span>`)}
+          ${profileRow('💼', 'Designation', s.designation || '—')}
+          ${profileRow('💰', 'Salary', s.salary ? formatCurrency(s.salary) : '—')}
+          ${profileRow('📱', 'Device', s.device_id ? `✅ Registered <span style="color:var(--text-light);font-size:11px">(${s.device_id.substr(0,14)}…)</span>` : '❌ Not registered')}
+          ${profileRow('🔑', 'Multi-Device', s.allow_multi_device ? '✅ Allowed' : '🔒 Single device')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function profileRow(icon, label, value) {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(26,58,110,0.06);gap:12px">
+    <span style="color:var(--text-light);font-size:13px;flex-shrink:0">${icon} ${label}</span>
+    <span style="font-weight:600;font-size:13px;color:var(--navy);text-align:right">${value}</span>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  EXPORT ATTENDANCE
+// ════════════════════════════════════════════════════════════
+async function exportAttendance() {
+  const dateFilter = document.getElementById('att-filter-date').value;
+  const searchQ = document.getElementById('att-search').value.toLowerCase();
+  try {
+    if (!allStaff.length) allStaff = await sb.query('cw_staff');
+    if (!allBranches.length) allBranches = await sb.query('cw_branches');
+    const filter = {};
+    if (dateFilter) filter.date = `eq.${dateFilter}`;
+    let att = await sb.query('cw_attendance', { filter, order: 'date.desc,clock_in.desc' });
+    if (searchQ) att = att.filter(a => {
+      const s = allStaff.find(x => x.id === a.staff_id);
+      return s?.name?.toLowerCase().includes(searchQ);
+    });
+    if (!att.length) { toast('No records to export', 'warn'); return; }
+
+    const headers = ['Staff Name', 'Designation', 'Branch', 'Date', 'Clock In', 'Clock Out', 'Hours Worked', 'Status'];
+    const rows = att.map(a => {
+      const s = allStaff.find(x => x.id === a.staff_id) || {};
+      const b = allBranches.find(x => x.id === s.branch_id) || {};
+      const hrs = a.clock_in && a.clock_out ? ((new Date(a.clock_out) - new Date(a.clock_in)) / 3600000).toFixed(2) : '';
+      return [
+        s.name || '',
+        s.designation || '',
+        b.name || '',
+        a.date || '',
+        a.clock_in ? new Date(a.clock_in).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'}) : '',
+        a.clock_out ? new Date(a.clock_out).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'}) : '',
+        hrs,
+        a.is_late ? 'Late' : 'On Time'
+      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+    });
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clockwise_attendance_${dateFilter || 'all'}_${todayStr()}.csv`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast(`Exported ${att.length} records ✅`, 'success');
+  } catch(e) { toast('Export failed: ' + e.message, 'error'); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  QUICK SALARY CALCULATOR
+// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+//  QUICK SALARY CALCULATOR
+// ════════════════════════════════════════════════════════════
+function quickCalc() {
+  const daily = parseFloat(document.getElementById('calc-daily').value) || 0;
+  const days  = parseFloat(document.getElementById('calc-days').value)  || 0;
+  const otHrs = parseFloat(document.getElementById('calc-ot-hours').value) || 0;
+  const otRate= parseFloat(document.getElementById('calc-ot-rate').value)  || 0;
+  const base  = daily * days;
+  const ot    = otHrs * otRate;
+  const res   = document.getElementById('quick-calc-result');
+  if (daily > 0 || days > 0) {
+    res.style.display = 'block';
+    document.getElementById('calc-base').textContent  = formatCurrency(base);
+    document.getElementById('calc-ot').textContent    = formatCurrency(ot);
+    document.getElementById('calc-total').textContent = formatCurrency(base + ot);
+  } else { res.style.display = 'none'; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SALARY PAGE
+// ════════════════════════════════════════════════════════════
+let salaryData   = {};   // keyed by staff id, cache for export
+let currentSalStaff = null;
+
+async function loadSalaryPage() {
+  // Populate staff dropdown
+  if (!allStaff.length) allStaff = await sb.query('cw_staff', { order: 'name.asc' });
+  const sel = document.getElementById('sal-staff-select');
+  sel.innerHTML = '<option value="">— Choose a staff member —</option>' +
+    allStaff.map(s => `<option value="${s.id}">${s.name}${s.designation ? ' · ' + s.designation : ''}</option>`).join('');
+
+  // Default date range = current month
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  const fromEl = document.getElementById('sal-from');
+  const toEl   = document.getElementById('sal-to');
+  if (!fromEl.value) fromEl.value = `${y}-${m}-01`;
+  if (!toEl.value) {
+    const last = new Date(y, now.getMonth()+1, 0);
+    toEl.value = `${y}-${m}-${String(last.getDate()).padStart(2,'0')}`;
+  }
+  document.getElementById('sal-staff-panel').style.display = 'none';
+}
+
+async function loadStaffSalary() {
+  const staffId = document.getElementById('sal-staff-select').value;
+  const from    = document.getElementById('sal-from').value;
+  const to      = document.getElementById('sal-to').value;
+  if (!staffId) { document.getElementById('sal-staff-panel').style.display = 'none'; return; }
+  if (!from || !to) { toast('Set a date range', 'warn'); return; }
+
+  const panel  = document.getElementById('sal-staff-panel');
+  panel.style.display = 'block';
+
+  const s = allStaff.find(x => x.id === staffId);
+  if (!s) return;
+  currentSalStaff = s;
+
+  // Staff banner
+  const branchNames = (() => {
+    if (s.branch_ids) { try { const ids = JSON.parse(s.branch_ids); return ids.map(id => allBranches.find(b=>b.id===id)?.name).filter(Boolean).join(', ') || '—'; } catch(e){} }
+    if (s.branch_id)  return allBranches.find(b=>b.id===s.branch_id)?.name || '—';
+    return '—';
+  })();
+  document.getElementById('sal-staff-banner').innerHTML = `
+    <div style="padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="width:56px;height:56px;border-radius:14px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#00C9C8,#1E5799);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700;box-shadow:0 4px 16px rgba(0,201,200,0.3)">
+        ${s.photo_url ? `<img src="${s.photo_url}" style="width:100%;height:100%;object-fit:cover">` : (s.name?.[0]||'?')}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:800;color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif">${s.name}</div>
+        <div style="color:var(--teal);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${s.designation||'Staff'}</div>
+        <div style="color:var(--text-light);font-size:12px;margin-top:2px">📍 ${branchNames} &nbsp;|&nbsp; 💰 Base: ${s.salary ? formatCurrency(s.salary) : 'Not set'}</div>
+      </div>
+    </div>`;
+
+  // Fetch attendance
+  const summaryEl = document.getElementById('sal-att-summary');
+  const tbody     = document.getElementById('sal-att-table');
+  summaryEl.innerHTML = '<div class="stat-card blue" style="grid-column:1/-1"><div class="page-loader" style="padding:20px"><div class="big-loader"></div></div></div>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-light)">Loading…</td></tr>';
+
+  try {
+    const att = await sb.query('cw_attendance', {
+      filter: { staff_id: `eq.${staffId}` },
+      order: 'date.asc'
+    });
+    const attInRange = att.filter(a => a.date >= from && a.date <= to);
+
+    let daysWorked = 0, totalHours = 0, otHours = 0;
+    attInRange.forEach(a => {
+      if (a.clock_in) daysWorked++;
+      if (a.clock_in && a.clock_out) {
+        const hrs = (new Date(a.clock_out) - new Date(a.clock_in)) / 3600000;
+        totalHours += hrs;
+        if (hrs > 8) otHours += hrs - 8;
+      }
+    });
+
+    // Cache for export
+    salaryData[staffId] = { staff: s, daysWorked, totalHours, otHours, from, to, attInRange };
+
+    // Summary stats
+    summaryEl.innerHTML = `
+      <div class="stat-card blue"><div class="stat-icon">📅</div><div class="stat-num">${daysWorked}</div><div class="stat-label">Days Worked</div></div>
+      <div class="stat-card teal"><div class="stat-icon">⏱️</div><div class="stat-num">${totalHours.toFixed(1)}h</div><div class="stat-label">Total Hours</div></div>
+      <div class="stat-card warn"><div class="stat-icon">🌙</div><div class="stat-num">${otHours.toFixed(1)}h</div><div class="stat-label">Overtime</div></div>
+      <div class="stat-card danger"><div class="stat-icon">🚫</div><div class="stat-num">${attInRange.filter(a=>a.is_late).length}</div><div class="stat-label">Late Days</div></div>
+    `;
+
+    // Records table
+    document.getElementById('sal-record-count').textContent = `${attInRange.length} record${attInRange.length!==1?'s':''}`;
+    if (!attInRange.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="e-icon">📋</div><h4>No records in this period</h4></div></td></tr>';
+    } else {
+      tbody.innerHTML = attInRange.map(a => {
+        const hrs   = a.clock_in && a.clock_out ? (new Date(a.clock_out)-new Date(a.clock_in))/3600000 : 0;
+        const ot    = Math.max(0, hrs - 8);
+        return `<tr>
+          <td data-label="Date"><strong>${formatDate(a.date)}</strong></td>
+          <td data-label="Clock In">${a.clock_in ? fmtTime(a.clock_in) : '<span style="color:var(--text-light)">—</span>'}</td>
+          <td data-label="Clock Out">${a.clock_out ? fmtTime(a.clock_out) : '<span style="color:var(--text-light)">—</span>'}</td>
+          <td data-label="Hours"><strong>${hrs > 0 ? hrs.toFixed(1)+'h' : '—'}</strong></td>
+          <td data-label="OT Hours">${ot > 0 ? `<span class="badge badge-yellow">+${ot.toFixed(1)}h</span>` : '—'}</td>
+          <td data-label="Status">${a.is_late ? '<span class="badge badge-red">⏰ Late</span>' : a.clock_in ? '<span class="badge badge-green">✅ On Time</span>' : '<span class="badge badge-gray">Absent</span>'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Pre-fill calculator
+    const storedDaily = s.salary ? (parseFloat(s.salary)/26) : 0;
+    document.getElementById('sal-days-worked').value  = daysWorked;
+    document.getElementById('sal-ot-hours').value     = otHours.toFixed(1);
+    document.getElementById('sal-daily-rate').value   = storedDaily > 0 ? storedDaily.toFixed(2) : '';
+    document.getElementById('sal-ot-rate').value      = storedDaily > 0 ? ((storedDaily/8)*1.5).toFixed(2) : '';
+    recalcSalary();
+
+  } catch(e) {
+    summaryEl.innerHTML = '';
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);padding:16px">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function recalcSalary() {
+  const daily  = parseFloat(document.getElementById('sal-daily-rate').value) || 0;
+  const days   = parseFloat(document.getElementById('sal-days-worked').value) || 0;
+  const otHrs  = parseFloat(document.getElementById('sal-ot-hours').value)   || 0;
+  const otRate = parseFloat(document.getElementById('sal-ot-rate').value)    || 0;
+  const base   = daily * days;
+  const ot     = otHrs * otRate;
+  const total  = base + ot;
+  const res    = document.getElementById('sal-result');
+
+  if (daily > 0) {
+    res.style.display = 'block';
+    document.getElementById('sal-r-daily').textContent = formatCurrency(daily);
+    document.getElementById('sal-r-base').textContent  = formatCurrency(base);
+    document.getElementById('sal-r-ot').textContent    = formatCurrency(ot);
+    document.getElementById('sal-r-total').textContent = formatCurrency(total);
+    // Cache latest calc
+    if (currentSalStaff && salaryData[currentSalStaff.id]) {
+      salaryData[currentSalStaff.id].calcPay = total;
+      salaryData[currentSalStaff.id].daily = daily;
+      salaryData[currentSalStaff.id].otRate = otRate;
+    }
+  } else {
+    res.style.display = 'none';
+  }
+}
+
+async function saveSalaryToStaff() {
+  if (!currentSalStaff) { toast('Select a staff member first', 'warn'); return; }
+  const daily = parseFloat(document.getElementById('sal-daily-rate').value) || 0;
+  if (!daily) { toast('Enter a daily rate first', 'warn'); return; }
+  const monthlyBase = daily * 26;
+  try {
+    await sb.update('cw_staff', { salary: monthlyBase }, { id: `eq.${currentSalStaff.id}` });
+    allStaff = await sb.query('cw_staff');
+    const updated = allStaff.find(x => x.id === currentSalStaff.id);
+    if (updated) currentSalStaff = updated;
+    toast(`Saved: ${currentSalStaff.name} base salary → ${formatCurrency(monthlyBase)}/mo ✅`, 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function exportSalaryReport() {
+  const entries = Object.values(salaryData);
+  if (!entries.length) { toast('Load a staff salary first', 'warn'); return; }
+  const headers = ['Staff Name','Designation','Period From','Period To','Days Worked','Total Hours','OT Hours','Daily Rate (AED)','OT Rate/Hr (AED)','Base Pay (AED)','OT Pay (AED)','Total Pay (AED)'];
+  const rows = entries.map(e => {
+    const daily  = parseFloat(document.getElementById('sal-daily-rate').value) || 0;
+    const otRate = parseFloat(document.getElementById('sal-ot-rate').value)    || 0;
+    const base   = daily * e.daysWorked;
+    const ot     = otRate * e.otHours;
+    return [
+      e.staff.name, e.staff.designation||'', e.from||'', e.to||'',
+      e.daysWorked, parseFloat(e.totalHours).toFixed(1), parseFloat(e.otHours).toFixed(1),
+      daily.toFixed(2), otRate.toFixed(2), base.toFixed(2), ot.toFixed(2), (base+ot).toFixed(2)
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `clockwise_salary_${todayStr()}.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Salary report exported ✅', 'success');
+}
+function todayStr() {
+  const d = new Date(); const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str + (str.length === 10 ? 'T00:00:00' : ''));
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+function formatDateFull(d) {
+  return d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function fmtTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+}
+function fmtLiveTime(d) {
+  return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+function calcHours(inIso, outIso) {
+  const diff = (new Date(outIso) - new Date(inIso)) / 3600000;
+  return diff > 0 ? diff.toFixed(1) + 'h' : '0h';
+}
+function formatCurrency(n) {
+  return new Intl.NumberFormat('en-AE', { style:'currency', currency:'AED', maximumFractionDigits:0 }).format(n);
+}
+function avatarHtml(s) {
+  if (s.photo_url) return `<div class="avatar"><img src="${s.photo_url}"></div>`;
+  return `<div class="avatar">${(s.name||'?')[0].toUpperCase()}</div>`;
+}
+// ════════════════════════════════════════════════════════════
+//  THEME TOGGLE
+// ════════════════════════════════════════════════════════════
+function applyTheme(dark) {
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-icon');
+  const btn = document.getElementById('theme-toggle-btn');
+  if (dark) {
+    html.setAttribute('data-theme', 'dark');
+    if (icon) icon.textContent = '☀️';
+    if (btn) btn.title = 'Switch to Light Mode';
+  } else {
+    html.removeAttribute('data-theme');
+    if (icon) icon.textContent = '🌙';
+    if (btn) btn.title = 'Switch to Dark Mode';
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = !isDark;
+  localStorage.setItem('cw_theme', next ? 'dark' : 'light');
+  applyTheme(next);
+}
+
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('cw_theme');
+  if (saved === 'dark') applyTheme(true);
+})();
+
+/*
+-- CLOCKWISE Database Schema
+-- Run in Supabase SQL Editor
+
+create table if not exists cw_settings (
+  id uuid primary key default gen_random_uuid(),
+  key text unique not null,
+  value text,
+  created_at timestamptz default now()
+);
+
+create table if not exists cw_branches (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  latitude numeric(10,6) not null,
+  longitude numeric(10,6) not null,
+  radius integer not null default 100,
+  created_at timestamptz default now()
+);
+
+create table if not exists cw_staff (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  pin text not null unique,
+  designation text,
+  branch_id uuid references cw_branches(id) on delete set null,
+  branch_ids text default '[]',
+  salary numeric(10,2) default 0,
+  photo_url text,
+  device_id text,
+  allow_multi_device boolean default false,
+  created_at timestamptz default now()
+);
+
+create table if not exists cw_attendance (
+  id uuid primary key default gen_random_uuid(),
+  staff_id uuid references cw_staff(id) on delete cascade,
+  date date not null,
+  clock_in timestamptz,
+  clock_out timestamptz,
+  is_late boolean default false,
+  created_at timestamptz default now(),
+  unique(staff_id, date)
+);
+
+create table if not exists cw_leaves (
+  id uuid primary key default gen_random_uuid(),
+  staff_id uuid references cw_staff(id) on delete cascade,
+  start_date date not null,
+  end_date date not null,
+  reason text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  leave_type text default 'vacation',
+  attachment_url text,
+  attachment_name text,
+  created_at timestamptz default now()
+);
+
+-- Storage bucket for leave attachments
+insert into storage.buckets (id, name, public) values ('leave-attachments', 'leave-attachments', true) on conflict do nothing;
+create policy "Public leave attachments" on storage.objects for all using (bucket_id = 'leave-attachments') with check (bucket_id = 'leave-attachments');
+
+-- Storage bucket for staff photos
+insert into storage.buckets (id, name, public) values ('staff-photos', 'staff-photos', true) on conflict do nothing;
+
+-- RLS Policies (disable RLS for simplicity or add your own)
+alter table cw_settings enable row level security;
+alter table cw_branches enable row level security;
+alter table cw_staff enable row level security;
+alter table cw_attendance enable row level security;
+alter table cw_leaves enable row level security;
+
+create policy "Public access" on cw_settings for all using (true) with check (true);
+create policy "Public access" on cw_branches for all using (true) with check (true);
+create policy "Public access" on cw_staff for all using (true) with check (true);
+create policy "Public access" on cw_attendance for all using (true) with check (true);
+create policy "Public access" on cw_leaves for all using (true) with check (true);
+create policy "Public storage" on storage.objects for all using (bucket_id = 'staff-photos') with check (bucket_id = 'staff-photos');
+*/
+</script>
+</body>
+</html>
